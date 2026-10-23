@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0" stop-color="#3a1210"/>
+      <stop offset="0.55" stop-color="#160807"/>
+      <stop offset="1" stop-color="#070404"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffb070" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffb070" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff9a3d"/>
+      <stop offset="0.55" stop-color="#ff5a3a"/>
+      <stop offset="1" stop-color="#d81e4d"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffb35c"/>
+      <stop offset="1" stop-color="#ff6a3d"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="38"/>
+    </filter>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+    <clipPath id="barclip"><rect x="252" y="300" width="520" height="78" rx="18"/></clipPath>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- faisceau du projecteur -->
+  <polygon points="430,0 594,0 820,1024 204,1024" fill="url(#beam)" opacity="0.55"/>
+
+  <!-- halo -->
+  <rect x="262" y="410" width="500" height="380" rx="60" fill="#ff5a3a" opacity="0.75" filter="url(#glow)"/>
+
+  <!-- clap : barre supérieure inclinée -->
+  <g transform="rotate(-13 262 378)" filter="url(#shadow)">
+    <rect x="252" y="300" width="520" height="78" rx="18" fill="#1b0f0d"/>
+    <g clip-path="url(#barclip)">
+      <polygon points="270,300 340,300 300,378 230,378" fill="url(#bar)"/>
+      <polygon points="410,300 480,300 440,378 370,378" fill="url(#bar)"/>
+      <polygon points="550,300 620,300 580,378 510,378" fill="url(#bar)"/>
+      <polygon points="690,300 760,300 720,378 650,378" fill="url(#bar)"/>
+    </g>
+    <circle cx="282" cy="339" r="13" fill="#fff" opacity="0.9"/>
+  </g>
+
+  <!-- clap : corps = écran -->
+  <g filter="url(#shadow)">
+    <rect x="252" y="400" width="520" height="400" rx="60" fill="url(#body)"/>
+    <!-- reflet -->
+    <path d="M312 400 H712 A60 60 0 0 1 772 460 V520 C640 470 420 470 252 540 V460 A60 60 0 0 1 312 400 Z" fill="#fff" opacity="0.13"/>
+    <!-- bouton lecture -->
+    <path d="M466 512 Q466 488 487 500 L602 578 Q620 590 602 602 L487 680 Q466 692 466 668 Z" fill="#fff"/>
+  </g>
+
+  <!-- braises -->
+  <g fill="#ffb36b">
+    <circle cx="196" cy="560" r="7" filter="url(#soft)"/><circle cx="196" cy="560" r="3.5" fill="#ffe2bf"/>
+    <circle cx="830" cy="520" r="9" filter="url(#soft)"/><circle cx="830" cy="520" r="4" fill="#ffe2bf"/>
+    <circle cx="790" cy="300" r="6" filter="url(#soft)"/><circle cx="790" cy="300" r="3" fill="#ffe2bf"/>
+    <circle cx="250" cy="250" r="5" filter="url(#soft)"/><circle cx="250" cy="250" r="2.5" fill="#ffe2bf"/>
+    <circle cx="300" cy="850" r="6" filter="url(#soft)"/><circle cx="300" cy="850" r="3" fill="#ffe2bf"/>
+    <circle cx="720" cy="860" r="8" filter="url(#soft)"/><circle cx="720" cy="860" r="3.5" fill="#ffe2bf"/>
+    <circle cx="610" cy="210" r="4" filter="url(#soft)"/><circle cx="610" cy="210" r="2" fill="#ffe2bf"/>
+  </g>
+</svg>
