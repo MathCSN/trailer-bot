@@ -1,0 +1,8 @@
+{
+  "handle": "",
+  "versions": ["VF", "VOSTFR"],
+  "max_days_after_release": 14,
+  "cutout": true,
+  "max_seconds": null,
+  "theme": null
+}

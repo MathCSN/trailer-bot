@@ -1,0 +1,5 @@
+requests
+pillow>=10
+numpy
+scipy
+rembg[cpu]
