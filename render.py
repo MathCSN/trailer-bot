@@ -22,6 +22,8 @@ VID_B = VID_Y + VID_H           # bas de la vidéo
 FONTS = Path(__file__).parent / "assets" / "fonts"
 # Zones masquées par l'interface TikTok (onglets en haut, boutons à droite, légende en bas)
 SAFE_TOP, SAFE_RIGHT, SAFE_BOTTOM = 150, 150, 1580
+# TikTok zoome ~13 % sur les téléphones récents et rogne ~60 px de chaque côté : marge latérale
+MARGIN = 110
 
 
 def font(name, size, weight=None):
@@ -85,7 +87,7 @@ def _line_width(line, space):
     return sum(space * 3 if x is None else x[3] + space for x in line) - space
 
 
-def _draw_logos(fg, logos, y, h=50, gap=44, max_w=960):
+def _draw_logos(fg, logos, y, h=50, gap=44, max_w=W - 2 * MARGIN):
     imgs = [l.resize((max(1, int(l.width * h / l.height)), h), Image.LANCZOS) for l in logos]
     imgs = [i if i.width <= 230 else i.resize((230, int(i.height * 230 / i.width)), Image.LANCZOS) for i in imgs]
     total = sum(i.width for i in imgs) + gap * (len(imgs) - 1)
@@ -107,7 +109,7 @@ def credits_block(fg, info, logos, y):
     draw = ImageDraw.Draw(fg)
     lab, nam = oswald(22, 300), oswald(22, 500)
     space = draw.textlength(" ", font=nam)
-    for line in _wrap(draw, _credit_words(info, lab, nam), 940, space)[:4]:
+    for line in _wrap(draw, _credit_words(info, lab, nam), W - 2 * MARGIN, space)[:4]:
         x = (W - _line_width(line, space)) / 2
         for item in line:
             if item is None:
@@ -371,14 +373,14 @@ def build_layers(info, assets, out_dir, cfg):
     # ---- premier plan (passe DEVANT la vidéo)
     fg = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     cut = assets.get("cutout")
-    title_box_w = W - 120
+    title_box_w = W - 2 * MARGIN
     if cut is not None and cfg.get("cutout", True):
         # le personnage n'est jamais recadré : on le réduit pour qu'il tienne en entier dans 560 x 640
         k = min(640 / cut.height, 560 / cut.width)
         cut = cut.resize((max(1, int(cut.width * k)), max(1, int(cut.height * k))), Image.LANCZOS)
         ch = cut.height
         overlap = 30                              # pixels du personnage qui débordent sur la vidéo
-        cx = W - cut.width - 10                    # entièrement à l'écran (rien de coupé à droite)
+        cx = W - cut.width - MARGIN // 2           # assez loin du bord pour le zoom de TikTok
         cy = VID_Y + overlap - ch
         a = cut.getchannel("A")
         # fondu progressif sur le bas du personnage : il « sort » du décor sans coupure nette
@@ -396,26 +398,26 @@ def build_layers(info, assets, out_dir, cfg):
     badge = f"BANDE-ANNONCE {info.get('version') or ''}".strip()
     bf = mont(30, 800)
     l, tt, r, b = draw.textbbox((0, 0), badge, font=bf)
-    bx, by = 60, SAFE_TOP + 40
+    bx, by = MARGIN, SAFE_TOP + 40
     fg.alpha_composite(shadow((W, H), [bx, by, bx + r + 44, by + 60], 30, 12, 140))
     draw.rounded_rectangle([bx, by, bx + r + 44, by + 60], 30, fill=accent + (255,))
     draw.text((bx + 22, by + 30), badge, font=bf, fill=(15, 12, 10), anchor="lm")
 
     title_top = by + 90
     max_h = VID_Y - 70 - title_top
-    block, tf, th_ = fit_title(info["title"], min(title_box_w, W - 120), max_h - 50)
+    block, tf, th_ = fit_title(info["title"], min(title_box_w, W - 2 * MARGIN), max_h - 50)
     title_y = title_top + (max_h - 50 - th_) // 2
-    text_glow(fg, (60, title_y), block, tf, (255, 255, 255, 255), accent, glow=18, spacing=int(tf.size * 0.05))
+    text_glow(fg, (MARGIN, title_y), block, tf, (255, 255, 255, 255), accent, glow=18, spacing=int(tf.size * 0.05))
     items = [g.upper() for g in info["genres"][:3]] + ([info["duration"]] if info.get("duration") else [])
     gf = mont(28, 700)
-    max_gw = (title_box_w - 60) if cut is not None else W - 120
+    max_gw = (title_box_w - 60) if cut is not None else W - 2 * MARGIN
     while len(items) > 1 and draw.textlength("  •  ".join(items), font=gf) > max_gw:
         items.pop(-2 if info.get("duration") and len(items) > 2 else -1)  # garde la durée si possible
-    draw.text((62, VID_Y - 58), "  •  ".join(items), font=gf, fill=accent + (255,), anchor="lm")
+    draw.text((MARGIN + 2, VID_Y - 58), "  •  ".join(items), font=gf, fill=accent + (255,), anchor="lm")
 
     # ---- bas : affiche (déborde sur la vidéo) + infos
     pw, ph_ = 250, 333
-    px, py = 60, VID_B - 24                      # l'affiche ne mord que très légèrement sur la vidéo
+    px, py = MARGIN, VID_B - 24                      # l'affiche ne mord que très légèrement sur la vidéo
     pst = cover(poster, pw, ph_, 0.0)
     fg.alpha_composite(shadow((W, H), [px, py + 10, px + pw, py + ph_ + 10], 16, 22, 230))
     pm = Image.new("L", (pw, ph_), 0)
@@ -424,7 +426,7 @@ def build_layers(info, assets, out_dir, cfg):
     draw.rounded_rectangle([px, py, px + pw - 1, py + ph_ - 1], 16, outline=accent + (255,), width=4)
 
     tx = px + pw + 40
-    col_w = W - SAFE_RIGHT - tx + 40
+    col_w = W - MARGIN - 40 - tx               # la date reste visible malgré le zoom de TikTok
     y = VID_B + 40
     if info.get("release_date_fr"):
         draw.text((tx, y), "AU CINÉMA LE", font=mont(28, 800), fill=accent + (255,))
