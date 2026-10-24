@@ -35,6 +35,93 @@ def anton(size):
     return font("Anton-Regular.ttf", size)
 
 
+def oswald(size, weight=400):
+    return font("Oswald[wght].ttf", size, weight)
+
+
+def _credit_words(info, lab, nam):
+    """Mots du bloc de crédits, chacun avec sa police (étiquette fine, noms plus marqués)."""
+    rows = [("UN FILM DE", info.get("directors", [])), ("AVEC", info.get("cast", [])[:5]),
+            ("SCÉNARIO", info.get("writers", [])[:2]), ("PRODUIT PAR", info.get("producers", [])[:3]),
+            ("UNE PRODUCTION", info.get("companies", [])[:3]), ("DISTRIBUTION", [info.get("distributor")])]
+    words = []
+    for label, names in rows:
+        names = [n.upper() for n in names if n]
+        if not names:
+            continue
+        if words:
+            words.append(None)  # séparation entre deux rubriques
+        words += [(w, lab, (165, 165, 170, 230)) for w in label.split()]
+        for k, n in enumerate(names):
+            if k:
+                words.append(("·", lab, (165, 165, 170, 200)))
+            words += [(w, nam, (230, 230, 235, 245)) for w in n.split()]
+    return words
+
+
+def _wrap(draw, words, max_w, space):
+    lines, cur, cur_w = [], [], 0
+    for word in words:
+        if word is None:  # séparation : un grand espace, sauf en début de ligne
+            if cur:
+                cur.append(None)
+                cur_w += space * 3
+            continue
+        w, f, _ = word
+        ww = draw.textlength(w, font=f)
+        if cur and cur_w + space + ww > max_w:
+            while cur and cur[-1] is None:
+                cur.pop()
+            lines.append(cur)
+            cur, cur_w = [], 0
+        cur.append((*word, ww))
+        cur_w += ww + space
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def _line_width(line, space):
+    return sum(space * 3 if x is None else x[3] + space for x in line) - space
+
+
+def _draw_logos(fg, logos, y, h=50, gap=44, max_w=960):
+    imgs = [l.resize((max(1, int(l.width * h / l.height)), h), Image.LANCZOS) for l in logos]
+    imgs = [i if i.width <= 230 else i.resize((230, int(i.height * 230 / i.width)), Image.LANCZOS) for i in imgs]
+    total = sum(i.width for i in imgs) + gap * (len(imgs) - 1)
+    if total > max_w:
+        k = max_w / total
+        imgs = [i.resize((int(i.width * k), int(i.height * k)), Image.LANCZOS) for i in imgs]
+        gap, total = int(gap * k), max_w
+    x = int((W - total) / 2)
+    for i in imgs:
+        i = i.copy()
+        i.putalpha(Image.fromarray((np.asarray(i.getchannel("A")) * 0.85).astype("uint8")))
+        fg.alpha_composite(i, (x, y + (h - i.height) // 2))
+        x += i.width + gap
+    return y + h
+
+
+def credits_block(fg, info, logos, y):
+    """Bloc de crédits façon affiche de cinéma + rangée de logos (production, distribution)."""
+    draw = ImageDraw.Draw(fg)
+    lab, nam = oswald(22, 300), oswald(22, 500)
+    space = draw.textlength(" ", font=nam)
+    for line in _wrap(draw, _credit_words(info, lab, nam), 940, space)[:4]:
+        x = (W - _line_width(line, space)) / 2
+        for item in line:
+            if item is None:
+                x += space * 3
+                continue
+            w, f, c, ww = item
+            draw.text((x, y), w, font=f, fill=c)
+            x += ww + space
+        y += 30
+    if logos:
+        y = _draw_logos(fg, logos, y + 16)
+    return y
+
+
 def mont(size, weight=600):
     return font("Montserrat[wght].ttf", size, weight)
 
@@ -311,10 +398,12 @@ def build_layers(info, assets, out_dir, cfg):
     block, tf, th_ = fit_title(info["title"], min(title_box_w, W - 120), max_h - 50)
     title_y = title_top + (max_h - 50 - th_) // 2
     text_glow(fg, (60, title_y), block, tf, (255, 255, 255, 255), accent, glow=18, spacing=int(tf.size * 0.05))
-    genres = "  •  ".join(g.upper() for g in info["genres"][:3])
-    if info.get("duration"):
-        genres += f"  •  {info['duration']}"
-    draw.text((62, VID_Y - 58), genres, font=mont(28, 700), fill=accent + (255,), anchor="lm")
+    items = [g.upper() for g in info["genres"][:3]] + ([info["duration"]] if info.get("duration") else [])
+    gf = mont(28, 700)
+    max_gw = (title_box_w - 60) if cut is not None else W - 120
+    while len(items) > 1 and draw.textlength("  •  ".join(items), font=gf) > max_gw:
+        items.pop(-2 if info.get("duration") and len(items) > 2 else -1)  # garde la durée si possible
+    draw.text((62, VID_Y - 58), "  •  ".join(items), font=gf, fill=accent + (255,), anchor="lm")
 
     # ---- bas : affiche (déborde sur la vidéo) + infos
     pw, ph_ = 250, 333
@@ -360,6 +449,11 @@ def build_layers(info, assets, out_dir, cfg):
     if cfg.get("handle"):
         draw.text((W // 2, SAFE_BOTTOM + 10), cfg["handle"], font=mont(26, 700),
                   fill=(255, 255, 255, 150), anchor="mm")
+    # bas de l'image : un léger voile sombre pour la lisibilité, puis crédits et logos
+    shade = Image.new("RGBA", (W, H - SAFE_BOTTOM), (0, 0, 0, 0))
+    shade.putalpha(vgrad(W, H - SAFE_BOTTOM, [(0, 0), (0.25, 120), (1, 170)]))
+    fg.alpha_composite(shade, (0, SAFE_BOTTOM))
+    credits_block(fg, info, assets.get("logos") or [], SAFE_BOTTOM + 42)
     fg.save(out_dir / "fg.png")
     return theme_name, accent
 
