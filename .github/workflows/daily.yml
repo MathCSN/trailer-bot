@@ -32,14 +32,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: videos, path: output/ }
-      # Ouvre un ticket avec la description à copier-coller (tu reçois une notif / un mail)
-      - name: description à copier
+      # Te prévient (notification GitHub + e-mail) avec le lien de la vidéo et la description à copier
+      - name: vidéo à publier
         env: { GH_TOKEN: "${{ github.token }}" }
-        run: |
-          for f in output/*.txt; do
-            [ -e "$f" ] || continue
-            gh issue create --title "🎬 $(head -1 "$f" | sed 's/^🎬 //')" --body-file "$f"
-          done
+        run: python notify.py
       - name: mémorise les films déjà publiés
         run: |
           git config user.name "trailer-bot" && git config user.email "bot@users.noreply.github.com"
