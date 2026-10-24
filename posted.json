@@ -1,0 +1,15 @@
+{
+  "1000018384": {
+    "title": "Karma",
+    "cmedia": "20644110",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-24_karma.mp4",
+    "date": "2026-10-24 03:10:06.246555",
+    "tiktok": {
+      "publish_id": "v_inbox_file~v2.7700065810588518422",
+      "mode": "draft"
+    },
+    "instagram": {
+      "error": "400 Client Error: Bad Request for url: https://graph.instagram.com/v21.0/17841440708287820/media"
+    }
+  }
+}
