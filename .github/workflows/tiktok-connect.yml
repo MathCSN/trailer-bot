@@ -1,0 +1,42 @@
+# À lancer une fois : transforme le code de connexion TikTok en refresh token
+# et l'enregistre dans le secret TIKTOK_REFRESH_TOKEN (nécessite le secret GH_PAT).
+name: connexion TikTok
+on:
+  workflow_dispatch:
+    inputs:
+      code:
+        description: "Code affiché sur https://mathcsn.github.io/trailer-bot/ après l'autorisation TikTok"
+        required: true
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: échange du code contre un token
+        env:
+          CODE: ${{ inputs.code }}
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, urllib.parse, urllib.request
+          body = urllib.parse.urlencode({
+              "client_key": os.environ["TIKTOK_CLIENT_KEY"],
+              "client_secret": os.environ["TIKTOK_CLIENT_SECRET"],
+              "code": urllib.parse.unquote(os.environ["CODE"].strip()),
+              "grant_type": "authorization_code",
+              "redirect_uri": "https://mathcsn.github.io/trailer-bot/",
+          }).encode()
+          req = urllib.request.Request("https://open.tiktokapis.com/v2/oauth/token/", data=body,
+                                       headers={"Content-Type": "application/x-www-form-urlencoded"})
+          try:
+              data = json.load(urllib.request.urlopen(req, timeout=30))
+          except urllib.error.HTTPError as e:
+              data = json.load(e)
+          if "refresh_token" not in data:
+              raise SystemExit(f"Échec TikTok : {data.get('error')} - {data.get('error_description')}")
+          print(f"::add-mask::{data['refresh_token']}")
+          subprocess.run(["gh", "secret", "set", "TIKTOK_REFRESH_TOKEN", "--body", data["refresh_token"],
+                          "--repo", os.environ["GITHUB_REPOSITORY"]], check=True)
+          print("✅ TikTok connecté. Autorisations :", data.get("scope"))
+          PY
