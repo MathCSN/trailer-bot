@@ -3,7 +3,6 @@
 Chaque logo est converti en blanc (comme le bloc de crédits d'une affiche) et n'est téléchargé qu'une fois.
 """
 import io
-import json
 import re
 import time
 import unicodedata
@@ -15,7 +14,6 @@ import requests
 from PIL import Image
 
 CACHE = Path(__file__).parent / "assets" / "logos"
-MISSING = CACHE / "_missing.json"
 HEADERS = {"User-Agent": "trailer-bot/1.0 (https://github.com/MathCSN/trailer-bot)"}
 KEYWORDS = ("cinéma", "film", "production", "distribu", "studio", "télévision", "chaîne", "audiovisuel",
             "média", "company", "television", "channel", "media")
@@ -97,9 +95,9 @@ def get(name):
         return None
     if path.exists():
         return Image.open(path)
-    missing = json.loads(MISSING.read_text()) if MISSING.exists() else {}
-    if time.time() - missing.get(key, 0) < 30 * 86400:
-        return None  # déjà cherché récemment sans succès
+    marker = path.with_suffix(".missing")  # logo introuvable : on ne recherche pas avant 30 jours
+    if marker.exists() and time.time() - marker.stat().st_mtime < 30 * 86400:
+        return None
     url = _logo_url(name)
     logo = None
     if url:
@@ -110,8 +108,7 @@ def get(name):
             except Exception:
                 logo = None
     if logo is None or logo.width < 20 or logo.height < 10:
-        missing[key] = time.time()
-        MISSING.write_text(json.dumps(missing, indent=1))
+        marker.touch()
         return None
     logo.save(path)
     return logo
