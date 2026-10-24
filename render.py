@@ -16,8 +16,12 @@ import theme as th
 
 W, H = 1080, 1920
 VID_W, VID_H = 1080, 608
-VID_CENTER = 950                # centre vertical de la vidéo
-VID_Y = VID_CENTER - VID_H // 2  # haut de la vidéo
+# Tout le contenu doit finir au-dessus de la légende TikTok (nom, description, barre de progression)
+CONTENT_BOTTOM = 1640
+VID_B_TARGET = 1090             # bas de la vidéo visé : laisse la place aux infos et aux crédits dessous
+MIN_VID_Y = 520                 # place minimale en haut pour le badge et le titre
+CONTENT_RIGHT = 840             # à droite : colonne de boutons TikTok (cœur, commentaires, favoris)
+VID_Y = max(MIN_VID_Y, VID_B_TARGET - VID_H)  # haut de la vidéo
 VID_B = VID_Y + VID_H           # bas de la vidéo
 FONTS = Path(__file__).parent / "assets" / "fonts"
 # Zones masquées par l'interface TikTok (onglets en haut, boutons à droite, légende en bas)
@@ -87,7 +91,7 @@ def _line_width(line, space):
     return sum(space * 3 if x is None else x[3] + space for x in line) - space
 
 
-def _draw_logos(fg, logos, y, h=50, gap=44, max_w=W - 2 * MARGIN):
+def _draw_logos(fg, logos, y, h=50, gap=44, max_w=CONTENT_RIGHT - MARGIN):
     imgs = [l.resize((max(1, int(l.width * h / l.height)), h), Image.LANCZOS) for l in logos]
     imgs = [i if i.width <= 230 else i.resize((230, int(i.height * 230 / i.width)), Image.LANCZOS) for i in imgs]
     total = sum(i.width for i in imgs) + gap * (len(imgs) - 1)
@@ -95,7 +99,7 @@ def _draw_logos(fg, logos, y, h=50, gap=44, max_w=W - 2 * MARGIN):
         k = max_w / total
         imgs = [i.resize((int(i.width * k), int(i.height * k)), Image.LANCZOS) for i in imgs]
         gap, total = int(gap * k), max_w
-    x = int((W - total) / 2)
+    x = int(MARGIN + (CONTENT_RIGHT - MARGIN - total) / 2)
     for i in imgs:
         i = i.copy()
         i.putalpha(Image.fromarray((np.asarray(i.getchannel("A")) * 0.85).astype("uint8")))
@@ -104,13 +108,15 @@ def _draw_logos(fg, logos, y, h=50, gap=44, max_w=W - 2 * MARGIN):
     return y + h
 
 
-def credits_block(fg, info, logos, y):
-    """Bloc de crédits façon affiche de cinéma + rangée de logos (production, distribution)."""
+def credits_block(fg, info, logos, y, bottom=CONTENT_BOTTOM):
+    """Bloc de crédits façon affiche de cinéma + rangée de logos, sans dépasser `bottom`."""
     draw = ImageDraw.Draw(fg)
     lab, nam = oswald(22, 300), oswald(22, 500)
     space = draw.textlength(" ", font=nam)
-    for line in _wrap(draw, _credit_words(info, lab, nam), W - 2 * MARGIN, space)[:4]:
-        x = (W - _line_width(line, space)) / 2
+    logo_h = 44 if logos else 0
+    max_lines = max(0, min(3, int((bottom - y - (logo_h + 14 if logos else 0)) // 30)))
+    for line in _wrap(draw, _credit_words(info, lab, nam), CONTENT_RIGHT - MARGIN, space)[:max_lines]:
+        x = MARGIN + (CONTENT_RIGHT - MARGIN - _line_width(line, space)) / 2
         for item in line:
             if item is None:
                 x += space * 3
@@ -119,8 +125,8 @@ def credits_block(fg, info, logos, y):
             draw.text((x, y), w, font=f, fill=c)
             x += ww + space
         y += 30
-    if logos:
-        y = _draw_logos(fg, logos, y + 16)
+    if logos and y + 14 + logo_h <= bottom:
+        y = _draw_logos(fg, logos, y + 14, h=logo_h)
     return y
 
 
@@ -132,7 +138,7 @@ def set_layout(aspect):
     """Adapte la hauteur de la vidéo à son vrai format (16:9, 2.39:1 cinémascope...)."""
     global VID_H, VID_Y, VID_B
     VID_H = int(round(VID_W / aspect / 2)) * 2
-    VID_Y = VID_CENTER - VID_H // 2
+    VID_Y = max(MIN_VID_Y, VID_B_TARGET - VID_H)
     VID_B = VID_Y + VID_H
 
 
@@ -193,7 +199,7 @@ def text_glow(canvas, xy, text, fnt, fill, glow_col, glow=14, anchor="la", spaci
     d2.multiline_text(xy, text, font=fnt, fill=fill, anchor=anchor, spacing=spacing)
 
 
-def fit_title(text, max_w, max_h, max_lines=3, start=150, min_size=58):
+def fit_title(text, max_w, max_h, max_lines=3, start=150, min_size=40):
     draw = ImageDraw.Draw(Image.new("L", (1, 1)))
     text = text.upper()
     for size in range(start, min_size - 1, -4):
@@ -398,22 +404,22 @@ def build_layers(info, assets, out_dir, cfg):
     badge = f"BANDE-ANNONCE {info.get('version') or ''}".strip()
     bf = mont(30, 800)
     l, tt, r, b = draw.textbbox((0, 0), badge, font=bf)
-    bx, by = MARGIN, SAFE_TOP + 40
+    bx, by = MARGIN, SAFE_TOP + 30
     fg.alpha_composite(shadow((W, H), [bx, by, bx + r + 44, by + 60], 30, 12, 140))
     draw.rounded_rectangle([bx, by, bx + r + 44, by + 60], 30, fill=accent + (255,))
     draw.text((bx + 22, by + 30), badge, font=bf, fill=(15, 12, 10), anchor="lm")
 
-    title_top = by + 90
-    max_h = VID_Y - 70 - title_top
-    block, tf, th_ = fit_title(info["title"], min(title_box_w, W - 2 * MARGIN), max_h - 50)
-    title_y = title_top + (max_h - 50 - th_) // 2
+    title_top = by + 84
+    max_h = VID_Y - 92 - title_top            # entre le badge et la ligne des genres
+    block, tf, th_ = fit_title(info["title"], min(title_box_w, W - 2 * MARGIN), max_h)
+    title_y = title_top + max(0, (max_h - th_) // 2)
     text_glow(fg, (MARGIN, title_y), block, tf, (255, 255, 255, 255), accent, glow=18, spacing=int(tf.size * 0.05))
     items = [g.upper() for g in info["genres"][:3]] + ([info["duration"]] if info.get("duration") else [])
     gf = mont(28, 700)
     max_gw = (title_box_w - 60) if cut is not None else W - 2 * MARGIN
     while len(items) > 1 and draw.textlength("  •  ".join(items), font=gf) > max_gw:
         items.pop(-2 if info.get("duration") and len(items) > 2 else -1)  # garde la durée si possible
-    draw.text((MARGIN + 2, VID_Y - 58), "  •  ".join(items), font=gf, fill=accent + (255,), anchor="lm")
+    draw.text((MARGIN + 2, VID_Y - 44), "  •  ".join(items), font=gf, fill=accent + (255,), anchor="lm")
 
     # ---- bas : affiche (déborde sur la vidéo) + infos
     pw, ph_ = 250, 333
@@ -426,7 +432,7 @@ def build_layers(info, assets, out_dir, cfg):
     draw.rounded_rectangle([px, py, px + pw - 1, py + ph_ - 1], 16, outline=accent + (255,), width=4)
 
     tx = px + pw + 40
-    col_w = W - MARGIN - 40 - tx               # la date reste visible malgré le zoom de TikTok
+    col_w = CONTENT_RIGHT - tx                 # à gauche des boutons TikTok
     y = VID_B + 40
     if info.get("release_date_fr"):
         draw.text((tx, y), "AU CINÉMA LE", font=mont(28, 800), fill=accent + (255,))
@@ -437,33 +443,46 @@ def build_layers(info, assets, out_dir, cfg):
             df = anton(df.size - 4)
         text_glow(fg, (tx, y), date, df, (255, 255, 255, 255), accent, glow=10)
         y += df.size + 26
-    for label, names in (("Réalisé par", info.get("directors")), ("Avec", info.get("cast", [])[:3])):
+    lf, nf = mont(26, 500), mont(29, 700)
+    if info.get("directors"):  # réalisateur sur une seule ligne : « De Alexandre Castagnetti »
+        d = ", ".join(info["directors"][:2])
+        while draw.textlength("De " + d, font=nf) > col_w and " " in d:
+            d = d.rsplit(" ", 1)[0]
+        draw.text((tx, y), "De", font=lf, fill=(220, 220, 220, 255))
+        draw.text((tx + draw.textlength("De ", font=lf), y - 2), d, font=nf, fill=(255, 255, 255, 255))
+        y += 50
+    for label, names in (("Avec", info.get("cast", [])[:3]),):
         if not names:
             continue
-        lf, nf = mont(26, 500), mont(29, 700)
         draw.text((tx, y), label, font=lf, fill=(220, 220, 220, 255))
         y += 36
-        lines, cur = [], ""
-        for n in names:  # on ne coupe jamais un nom en deux
-            nxt = f"{cur}, {n}" if cur else n
-            if cur and draw.textlength(nxt + ",", font=nf) > col_w:
-                lines.append(cur + ",")
-                cur = n
-            else:
-                cur = nxt
-        lines.append(cur)
+        # autant de noms que possible sur 2 lignes, sans jamais couper un nom ni finir par une virgule
+        while True:
+            lines, cur = [], ""
+            for n in names:
+                nxt = f"{cur}, {n}" if cur else n
+                if cur and draw.textlength(nxt + ",", font=nf) > col_w:
+                    lines.append(cur + ",")
+                    cur = n
+                else:
+                    cur = nxt
+            lines.append(cur)
+            if len(lines) <= 2 or len(names) == 1:
+                break
+            names = names[:-1]
         for line in lines[:2]:
             draw.text((tx, y), line, font=nf, fill=(255, 255, 255, 255))
             y += 38
         y += 14
+    y = max(y, py + ph_ + 6)                  # sous l'affiche et sous les infos
+    # bas de l'image : un léger voile sombre pour la lisibilité, puis @ , crédits et logos
+    shade = Image.new("RGBA", (W, H - y), (0, 0, 0, 0))
+    shade.putalpha(vgrad(W, H - y, [(0, 0), (0.2, 120), (1, 170)]))
+    fg.alpha_composite(shade, (0, y))
     if cfg.get("handle"):
-        draw.text((W // 2, SAFE_BOTTOM + 10), cfg["handle"], font=mont(26, 700),
-                  fill=(255, 255, 255, 150), anchor="mm")
-    # bas de l'image : un léger voile sombre pour la lisibilité, puis crédits et logos
-    shade = Image.new("RGBA", (W, H - SAFE_BOTTOM), (0, 0, 0, 0))
-    shade.putalpha(vgrad(W, H - SAFE_BOTTOM, [(0, 0), (0.25, 120), (1, 170)]))
-    fg.alpha_composite(shade, (0, SAFE_BOTTOM))
-    credits_block(fg, info, assets.get("logos") or [], SAFE_BOTTOM + 42)
+        draw.text(((MARGIN + CONTENT_RIGHT) // 2, y + 18), cfg["handle"], font=mont(24, 700), fill=(255, 255, 255, 150), anchor="mm")
+        y += 36
+    credits_block(fg, info, assets.get("logos") or [], y + 12)
     fg.save(out_dir / "fg.png")
     return theme_name, accent
 
