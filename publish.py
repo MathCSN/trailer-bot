@@ -59,7 +59,7 @@ def post_video(video_path, caption, token=None, privacy=None):
         r.raise_for_status()
         data = r.json()["data"]
         _upload(video_path, data["upload_url"], size, chunk, n_chunks)
-        return {"publish_id": data["publish_id"], "mode": "draft"}
+        return {"mode": "draft", **_wait(token, data["publish_id"], ("SEND_TO_USER_INBOX", "PUBLISH_COMPLETE", "FAILED"))}
 
     info = creator_info(token)
     allowed = info.get("privacy_level_options", [])
@@ -84,13 +84,20 @@ def post_video(video_path, caption, token=None, privacy=None):
     publish_id = data["publish_id"]
     _upload(video_path, data["upload_url"], size, chunk, n_chunks)
 
-    for _ in range(60):  # attend la fin du traitement côté TikTok
+    return {"privacy": privacy, **_wait(token, publish_id, ("PUBLISH_COMPLETE", "FAILED"))}
+
+
+def _wait(token, publish_id, final):
+    """Attend la fin du traitement côté TikTok (statut + raison d'un éventuel échec)."""
+    s = {}
+    for _ in range(60):
         time.sleep(5)
         s = requests.post(f"{API}/post/publish/status/fetch/", headers=_headers(token),
-                          json={"publish_id": publish_id}, timeout=30).json()["data"]
-        if s.get("status") in ("PUBLISH_COMPLETE", "FAILED"):
-            return {"publish_id": publish_id, "privacy": privacy, **s}
-    return {"publish_id": publish_id, "privacy": privacy, "status": "PENDING"}
+                          json={"publish_id": publish_id}, timeout=30).json()
+        s = s.get("data") or s
+        if s.get("status") in final:
+            break
+    return {"publish_id": publish_id, "status": s.get("status", "PENDING"), "fail_reason": s.get("fail_reason")}
 
 
 def _upload(video_path, upload_url, size, chunk, n_chunks):
