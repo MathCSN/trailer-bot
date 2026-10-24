@@ -9,6 +9,7 @@ GENRE_TAGS = {
     "policier": "policier", "famille": "filmfamille", "biopic": "biopic", "guerre": "filmdeguerre",
 }
 MAX_LEN = 2200  # limite du titre/légende de l'API TikTok
+MAX_TAGS = 5
 
 
 def hashtag(text):
@@ -51,12 +52,9 @@ def build(info, handle=None):
     lines.append("Tu vas le voir au cinéma ? Dis-le en commentaire 👇")
     lines.append("")
 
-    tags = ["#bandeannonce", hashtag(info["title"]), "#film", "#cinema"]
-    for g in info.get("genres", [])[:2]:
-        tag = GENRE_TAGS.get(g.lower())
-        if tag:
-            tags.append("#" + tag)
-    tags += ["#sortiecinema", "#trailer", "#filmtok", "#pourtoi"]
+    # 5 hashtags maximum : le type de vidéo, le film, le cinéma, le genre principal, la sortie
+    genre = next((GENRE_TAGS[g.lower()] for g in info.get("genres", []) if g.lower() in GENRE_TAGS), "film")
+    tags = ["#bandeannonce", hashtag(info["title"]), "#cinema", "#" + genre, "#sortiecinema"][:MAX_TAGS]
     lines.append(" ".join(dict.fromkeys(tags)))
     text = "\n".join(lines)
     if len(text) > MAX_LEN:  # on raccourcit le synopsis en priorité
