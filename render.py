@@ -260,14 +260,26 @@ def best_cutout(images, cache_dir):
         if bh < a.shape[0] * 0.55:   # personnage trop petit dans l'image
             continue
         # tête coupée par le cadre : il faut de l'air au-dessus et un sommet de crâne arrondi
-        if ys.min() < max(12, a.shape[0] * 0.04):
+        if ys.min() < a.shape[0] * 0.08:      # au moins 8 % d'air au-dessus de la tête
             continue
         top_w = a[ys.min():ys.min() + 3].any(axis=0).sum()
         if top_w / max(1, a.any(axis=0).sum()) > 0.2:
             continue
-        if max(a[:, :6].mean(), a[:, -6:].mean()) > 0.15:  # trop collé à un bord latéral
+        body = a[:int(a.shape[0] * 0.85)]     # seul le bas du corps peut toucher les bords (cadrage normal)
+        if body[:, :6].any() or body[:, -6:].any():  # bras ou épaule coupés par le bord de l'image
             continue
         g = np.asarray(cut.convert("L")).astype(float)
+        # bas : un seul morceau (le buste) peut sortir de l'image ; deux = un bras coupé
+        bottom = a[-3:].any(axis=0)
+        if ndimage.label(bottom)[1] > 1:
+            continue
+        # cheveux foncés sur fond sombre : le détourage rate le haut du crâne
+        top, cols = ys.min(), np.nonzero(a[ys.min():ys.min() + 12].any(axis=0))[0]
+        if len(cols):
+            hair = g[top:top + 12, cols.min():cols.max() + 1][a[top:top + 12, cols.min():cols.max() + 1]].mean()
+            above = g[max(0, top - 30):max(1, top - 5), cols.min():cols.max() + 1].mean()
+            if hair < 70 and abs(hair - above) < 30:
+                continue
         inner = ndimage.binary_erosion(a, iterations=8)
         if inner.sum() < 500:
             continue
@@ -361,16 +373,12 @@ def build_layers(info, assets, out_dir, cfg):
     cut = assets.get("cutout")
     title_box_w = W - 120
     if cut is not None and cfg.get("cutout", True):
-        ch = 640                                   # hauteur du personnage
-        cut = cut.resize((int(cut.width * ch / cut.height), ch), Image.LANCZOS)
-        if cut.width > 560:                        # trop large : on recadre au centre, bords adoucis
-            x0 = (cut.width - 560) // 2
-            cut = cut.crop((x0, 0, x0 + 560, ch))
-            ramp = np.clip(np.arange(560) / 70, 0, 1)
-            ramp = np.minimum(ramp, ramp[::-1])
-            cut.putalpha(Image.fromarray((np.asarray(cut.getchannel("A")) * ramp[None, :]).astype("uint8")))
+        # le personnage n'est jamais recadré : on le réduit pour qu'il tienne en entier dans 560 x 640
+        k = min(640 / cut.height, 560 / cut.width)
+        cut = cut.resize((max(1, int(cut.width * k)), max(1, int(cut.height * k))), Image.LANCZOS)
+        ch = cut.height
         overlap = 30                              # pixels du personnage qui débordent sur la vidéo
-        cx = W - cut.width + 30
+        cx = W - cut.width - 10                    # entièrement à l'écran (rien de coupé à droite)
         cy = VID_Y + overlap - ch
         a = cut.getchannel("A")
         # fondu progressif sur le bas du personnage : il « sort » du décor sans coupure nette
