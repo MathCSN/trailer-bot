@@ -125,6 +125,16 @@ def fit_title(text, max_w, max_h, max_lines=3, start=150, min_size=58):
 
 # --------------------------------------------------------------------------- détourage
 
+def has_subtitles(path):
+    """Sous-titres incrustés : lignes de texte blanc dans le bas de l'image."""
+    g = np.asarray(Image.open(path).convert("RGB")).astype(int)
+    h, w, _ = g.shape
+    zone = g[int(h * 0.72):, int(w * 0.15):int(w * 0.85)]
+    white = zone.min(axis=2) > 215
+    transitions = np.abs(np.diff(white.astype(int), axis=1)).sum(axis=1)
+    return (transitions >= 14).sum() >= 6
+
+
 def best_cutout(images, cache_dir):
     """Détoure le personnage le plus « posable » parmi les photos du film (rembg)."""
     try:
@@ -138,6 +148,8 @@ def best_cutout(images, cache_dir):
         with Image.open(path) as im:
             if im.width / im.height < 1.2:   # format portrait = affiche (avec texte) : on l'ignore
                 continue
+        if has_subtitles(path):              # sous-titres incrustés : ils seraient détourés avec le personnage
+            continue
         out = Path(cache_dir) / f"cutout_human_{Path(path).stem}.png"
         if out.exists():
             cut = Image.open(out)
@@ -160,7 +172,11 @@ def best_cutout(images, cache_dir):
         bh, bw = ys.max() - ys.min(), xs.max() - xs.min()
         if bh < a.shape[0] * 0.55:   # personnage trop petit dans l'image
             continue
-        if a[:6].mean() > 0.005:     # tête coupée par le bord haut de la photo : inutilisable
+        # tête coupée par le cadre : il faut de l'air au-dessus et un sommet de crâne arrondi
+        if ys.min() < max(12, a.shape[0] * 0.04):
+            continue
+        top_w = a[ys.min():ys.min() + 3].any(axis=0).sum()
+        if top_w / max(1, a.any(axis=0).sum()) > 0.2:
             continue
         if max(a[:, :6].mean(), a[:, -6:].mean()) > 0.15:  # trop collé à un bord latéral
             continue

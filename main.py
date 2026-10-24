@@ -88,10 +88,10 @@ def make(trailer, info, cfg, preview=False):
         frames = []
         dur = render.probe_duration(mp4)
         vf = ["-vf", "crop=%d:%d:%d:%d" % crop] if crop else []
-        for i in range(12):
+        for i in range(24):
             p = work / f"frame{i:02d}.jpg"
             if not p.exists():
-                render.subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{dur * (0.08 + 0.07 * i):.1f}",
+                render.subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{dur * (0.05 + 0.037 * i):.1f}",
                                        "-i", str(mp4), *vf, "-frames:v", "1", "-q:v", "2", str(p)], check=True)
             frames.append(str(p))
         cut = render.best_cutout(stills + frames, work)
