@@ -11,5 +11,18 @@
     "instagram": {
       "error": "400 Client Error: Bad Request for url: https://graph.instagram.com/v21.0/17841440708287820/media"
     }
+  },
+  "1000019622": {
+    "title": "Le Fantôme de l'Opéra",
+    "cmedia": "20641387",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-24_le-fantome-de-l-opera.mp4",
+    "date": "2026-10-24 05:28:50.103874",
+    "tiktok": {
+      "error": "'access_token'"
+    },
+    "instagram": {
+      "media_id": "17938558185123141",
+      "username": "onva.voirquoi"
+    }
   }
 }
