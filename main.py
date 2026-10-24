@@ -8,6 +8,7 @@
 import argparse
 import datetime as dt
 import json
+import os
 import re
 import shutil
 import sys
@@ -142,9 +143,21 @@ def main():
         out, text, info = make(t, info, cfg, preview=a.preview)
         entry = {"title": info["title"], "cmedia": t["cmedia"], "file": str(out), "date": str(dt.datetime.now())}
         if a.publish and not a.preview:
-            import publish
-            entry["tiktok"] = publish.post_video(out, text)
-            print("  publié :", entry["tiktok"])
+            # chaque réseau est indépendant : une erreur sur l'un ne bloque pas l'autre
+            if os.environ.get("TIKTOK_REFRESH_TOKEN") or os.environ.get("TIKTOK_ACCESS_TOKEN"):
+                import publish
+                try:
+                    entry["tiktok"] = publish.post_video(out, text)
+                except Exception as e:
+                    entry["tiktok"] = {"error": str(e)}
+                print("  TikTok :", entry["tiktok"])
+            if os.environ.get("INSTAGRAM_TOKEN"):
+                import instagram
+                try:
+                    entry["instagram"] = instagram.post_reel(out, text)
+                except Exception as e:
+                    entry["instagram"] = {"error": str(e)}
+                print("  Instagram :", entry["instagram"])
             posted[info["cfilm"]] = entry
             STATE.write_text(json.dumps(posted, ensure_ascii=False, indent=2))
 

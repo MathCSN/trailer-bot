@@ -49,3 +49,11 @@ Alternatives sans créer d'app : Postiz, Composio/Rube (skill `tiktok-automation
 Pousse ce dossier sur un dépôt GitHub, ajoute les 3 secrets ci-dessus,
 et `.github/workflows/daily.yml` publie une bande-annonce tous les jours à 18h.
 Mets la variable `TIKTOK_PRIVACY=PUBLIC_TO_EVERYONE` une fois l'app validée.
+
+## Instagram (Reels)
+`instagram.py` publie la même vidéo en Reel via l'API officielle (Instagram API with Instagram Login).
+- Compte Instagram **professionnel** (Créateur ou Entreprise) obligatoire.
+- App Meta en mode développement = suffit pour publier sur TON compte, sans validation.
+- Secret GitHub : `INSTAGRAM_TOKEN` (token longue durée, 60 jours).
+- Optionnel : secret `GH_PAT` (jeton GitHub avec droit « Secrets : écriture ») pour que le token Instagram
+  soit renouvelé et ré-enregistré automatiquement, sinon il faut le regénérer tous les 2 mois.
