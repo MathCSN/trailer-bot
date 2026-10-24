@@ -398,10 +398,12 @@ def build_layers(info, assets, out_dir, cfg):
     block, tf, th_ = fit_title(info["title"], min(title_box_w, W - 120), max_h - 50)
     title_y = title_top + (max_h - 50 - th_) // 2
     text_glow(fg, (60, title_y), block, tf, (255, 255, 255, 255), accent, glow=18, spacing=int(tf.size * 0.05))
-    genres = "  •  ".join(g.upper() for g in info["genres"][:3])
-    if info.get("duration"):
-        genres += f"  •  {info['duration']}"
-    draw.text((62, VID_Y - 58), genres, font=mont(28, 700), fill=accent + (255,), anchor="lm")
+    items = [g.upper() for g in info["genres"][:3]] + ([info["duration"]] if info.get("duration") else [])
+    gf = mont(28, 700)
+    max_gw = (title_box_w - 60) if cut is not None else W - 120
+    while len(items) > 1 and draw.textlength("  •  ".join(items), font=gf) > max_gw:
+        items.pop(-2 if info.get("duration") and len(items) > 2 else -1)  # garde la durée si possible
+    draw.text((62, VID_Y - 58), "  •  ".join(items), font=gf, fill=accent + (255,), anchor="lm")
 
     # ---- bas : affiche (déborde sur la vidéo) + infos
     pw, ph_ = 250, 333
