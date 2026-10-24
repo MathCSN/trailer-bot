@@ -7,7 +7,6 @@ Pré-requis (une seule fois) :
   3. Tant que l'app n'a pas passé l'audit TikTok, les vidéos ne peuvent être publiées
      qu'en privé (SELF_ONLY). Après l'audit : PUBLIC_TO_EVERYONE.
 """
-import math
 import os
 import time
 from pathlib import Path
@@ -31,8 +30,11 @@ def access_token():
             "grant_type": "refresh_token",
             "refresh_token": os.environ["TIKTOK_REFRESH_TOKEN"],
         })
-        r.raise_for_status()
-        return r.json()["access_token"]
+        data = r.json() if r.content else {}
+        if "access_token" not in data:
+            raise RuntimeError("TikTok refuse de renouveler la clé (" + str(data.get("error_description") or data.get("error") or r.status_code)
+                               + ") : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »")
+        return data["access_token"]
     return os.environ["TIKTOK_ACCESS_TOKEN"]
 
 
