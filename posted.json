@@ -24,5 +24,18 @@
       "media_id": "17938558185123141",
       "username": "onva.voirquoi"
     }
+  },
+  "321790": {
+    "title": "Le Corset",
+    "cmedia": "20640472",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-24_le-corset.mp4",
+    "date": "2026-10-24 18:39:40.509496",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18645895015008239",
+      "username": "onva.voirquoi"
+    }
   }
 }
