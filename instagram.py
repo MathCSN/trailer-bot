@@ -1,10 +1,12 @@
 """Publication Instagram (Reels) via l'API officielle « Instagram API with Instagram Login ».
 
 Variables : INSTAGRAM_TOKEN (token longue durée, 60 jours, renouvelé automatiquement).
+La vidéo est déposée quelques minutes dans une release GitHub publique (Instagram exige une URL).
 Le compte Instagram doit être un compte professionnel (Créateur ou Entreprise).
 Tant que l'app Meta est en mode développement, ça marche pour TON compte : aucune validation nécessaire.
 """
 import os
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -12,7 +14,6 @@ from pathlib import Path
 import requests
 
 GRAPH = "https://graph.instagram.com/v21.0"
-RUPLOAD = "https://rupload.facebook.com/ig-api-upload/v21.0"
 
 
 def _check(r, what):
@@ -46,24 +47,23 @@ def post_reel(video_path, caption, token=None, publish=True):
     _check(me, "profil")
     user_id = me.json()["user_id"]
 
-    # 1. conteneur Reel en upload direct (pas besoin d'héberger la vidéo)
-    r = requests.post(f"{GRAPH}/{user_id}/media", timeout=30, data={
-        "media_type": "REELS", "upload_type": "resumable", "caption": caption[:2200],
+    # 1. Instagram télécharge lui-même la vidéo : on la dépose temporairement sur GitHub (release publique)
+    video_url, cleanup = host_video(video_path)
+    try:
+        return _create_and_publish(user_id, me.json(), video_url, caption, token, publish)
+    finally:
+        cleanup()
+
+
+def _create_and_publish(user_id, me, video_url, caption, token, publish):
+    r = requests.post(f"{GRAPH}/{user_id}/media", timeout=60, data={
+        "media_type": "REELS", "video_url": video_url, "caption": caption[:2200],
         "share_to_feed": "true", "access_token": token,
     })
     _check(r, "création du Reel")
     container = r.json()["id"]
 
-    # 2. envoi du fichier
-    video_path = Path(video_path)
-    with open(video_path, "rb") as fh:
-        up = requests.post(f"{RUPLOAD}/{container}", data=fh, timeout=600, headers={
-            "Authorization": f"OAuth {token}", "offset": "0",
-            "file_size": str(video_path.stat().st_size),
-        })
-    _check(up, "envoi de la vidéo")
-
-    # 3. attente du traitement par Instagram
+    # 2. attente du traitement par Instagram
     for _ in range(90):
         time.sleep(10)
         s = requests.get(f"{GRAPH}/{container}", timeout=30,
@@ -76,14 +76,33 @@ def post_reel(video_path, caption, token=None, publish=True):
         raise RuntimeError("Instagram : traitement trop long")
 
     if not publish:
-        return {"container": container, "status": "FINISHED", "username": me.json().get("username"),
-                "account_type": me.json().get("account_type"), "published": False}
+        return {"container": container, "status": "FINISHED", "username": me.get("username"),
+                "account_type": me.get("account_type"), "published": False}
 
-    # 4. publication
+    # 3. publication
     p = requests.post(f"{GRAPH}/{user_id}/media_publish", timeout=60,
                       data={"creation_id": container, "access_token": token})
     _check(p, "publication")
-    return {"media_id": p.json()["id"], "username": me.json().get("username")}
+    return {"media_id": p.json()["id"], "username": me.get("username")}
+
+
+def host_video(path):
+    """Met la vidéo dans une release GitHub publique le temps qu'Instagram la récupère."""
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        raise RuntimeError("Instagram a besoin d'une URL publique : lancer depuis GitHub Actions")
+    path = Path(path)
+    tag = f"media-{int(time.time())}"
+    name = re.sub(r"[^A-Za-z0-9._-]", "-", path.name)
+    subprocess.run(["gh", "release", "create", tag, f"{path}#{name}", "--repo", repo, "--prerelease",
+                    "--title", "fichier temporaire Instagram", "--notes", "Supprimé automatiquement après publication."],
+                   check=True, capture_output=True)
+    url = f"https://github.com/{repo}/releases/download/{tag}/{name}"
+
+    def cleanup():
+        subprocess.run(["gh", "release", "delete", tag, "--repo", repo, "--yes", "--cleanup-tag"],
+                       check=False, capture_output=True)
+    return url, cleanup
 
 
 if __name__ == "__main__":

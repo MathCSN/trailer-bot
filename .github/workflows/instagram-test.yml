@@ -1,6 +1,8 @@
 # Vérifie la connexion Instagram SANS rien publier (≈ 1 min).
 name: test Instagram
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -10,3 +12,4 @@ jobs:
       - run: python instagram.py --test
         env:
           INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
