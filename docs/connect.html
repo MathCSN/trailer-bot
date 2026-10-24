@@ -1,0 +1,21 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connexion TikTok</title>
+<style>body{font-family:system-ui,sans-serif;max-width:620px;margin:40px auto;padding:0 16px;line-height:1.6;color:#222;background:#fff}
+input{width:100%;font-size:1rem;padding:10px;border:2px solid #ccc;border-radius:8px;box-sizing:border-box}
+button{margin-top:12px;font-size:1.05rem;padding:12px 18px;border:0;border-radius:8px;background:#ff5a3a;color:#fff;cursor:pointer}
+.note{color:#666;font-size:.9rem}</style></head>
+<body>
+<h1>Connexion TikTok</h1>
+<p>Colle le <strong>Client key de la Sandbox</strong> (developers.tiktok.com → ton app → Sandbox → Client key) :</p>
+<input id="key" placeholder="ex. sbaw1x2y3z..." autocomplete="off">
+<button id="go">Se connecter à TikTok</button>
+<p class="note">Après l'autorisation, tu reviens sur la page d'accueil qui affiche ton code de connexion.</p>
+<script>
+document.getElementById("go").onclick = () => {
+  const key = document.getElementById("key").value.trim();
+  if (!key) return alert("Colle d'abord le Client key");
+  const p = new URLSearchParams({client_key: key, scope: "user.info.basic,video.publish,video.upload",
+    response_type: "code", redirect_uri: "https://mathcsn.github.io/trailer-bot/", state: "onvavoirquoi"});
+  location.href = "https://www.tiktok.com/v2/auth/authorize/?" + p.toString();
+};
+</script>
+</body></html>
