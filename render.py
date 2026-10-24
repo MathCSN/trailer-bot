@@ -240,16 +240,17 @@ def build_layers(info, assets, out_dir, cfg):
         for edge in ("top", "bottom"):
             pts, phases = [], [rnd.uniform(0, 6.28) for _ in range(4)]
             for x in range(0, VID_W + 8, 8):
-                depth = 14 + 6 * math.sin(x / 61 + phases[0]) + 5 * math.sin(x / 23 + phases[1]) \
-                    + 3 * math.sin(x / 9 + phases[2]) + rnd.uniform(-3, 3)
+                # bord déchiré léger : 2 à 9 px seulement, pour ne presque rien cacher de l'image
+                depth = 5 + 2 * math.sin(x / 61 + phases[0]) + 1.5 * math.sin(x / 23 + phases[1]) \
+                    + 1 * math.sin(x / 9 + phases[2]) + rnd.uniform(-1, 1)
                 pts.append((x, depth if edge == "top" else VID_H - depth))
             poly = [(0, 0)] + pts + [(VID_W, 0)] if edge == "top" else [(0, VID_H)] + pts + [(VID_W, VID_H)]
             d.polygon(poly, fill=0)
-        mask = mask.filter(ImageFilter.GaussianBlur(2.5))
+        mask = mask.filter(ImageFilter.GaussianBlur(1.5))
     else:
         m = Image.new("L", (VID_W, VID_H), 0)
         ImageDraw.Draw(m).rounded_rectangle([0, 0, VID_W - 1, VID_H - 1], 0, fill=255)
-        mask = Image.composite(m, Image.new("L", m.size, 0), vgrad(VID_W, VID_H, [(0, 0), (0.035, 255), (0.965, 255), (1, 0)]))
+        mask = Image.composite(m, Image.new("L", m.size, 0), vgrad(VID_W, VID_H, [(0, 0), (8 / VID_H, 255), (1 - 8 / VID_H, 255), (1, 0)]))
     mask.save(out_dir / "mask.png")
 
     # ---- premier plan (passe DEVANT la vidéo)
@@ -262,7 +263,7 @@ def build_layers(info, assets, out_dir, cfg):
         if cut.width > 560:                        # trop large : on recadre au centre
             x0 = (cut.width - 560) // 2
             cut = cut.crop((x0, 0, x0 + 560, ch))
-        overlap = 75                              # pixels du personnage qui débordent sur la vidéo
+        overlap = 30                              # pixels du personnage qui débordent sur la vidéo
         cx = W - cut.width + 30
         cy = VID_Y + overlap - ch
         a = cut.getchannel("A")
@@ -297,7 +298,7 @@ def build_layers(info, assets, out_dir, cfg):
 
     # ---- bas : affiche (déborde sur la vidéo) + infos
     pw, ph_ = 250, 333
-    px, py = 60, VID_B - 60
+    px, py = 60, VID_B - 24                      # l'affiche ne mord que très légèrement sur la vidéo
     pst = cover(poster, pw, ph_, 0.0)
     fg.alpha_composite(shadow((W, H), [px, py + 10, px + pw, py + ph_ + 10], 16, 22, 230))
     pm = Image.new("L", (pw, ph_), 0)
