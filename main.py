@@ -71,6 +71,9 @@ def make(trailer, info, cfg, preview=False):
             stills.append(str(p))
 
     crop = render.detect_crop(mp4)
+    cut_at = render.branded_end(mp4)
+    if cut_at:
+        print(f"  carton de marque détecté à la fin : vidéo coupée à {cut_at:.1f} s")
     if crop:
         render.set_layout(crop[0] / crop[1])
     else:
@@ -105,7 +108,7 @@ def make(trailer, info, cfg, preview=False):
     render.still_preview(work, mp4, pdir, out_dir / f"{name}.png", crop=crop)
     out = out_dir / f"{name}{'_preview' if preview else ''}.mp4"
     render.compose(mp4, work, pdir / "%04d.png", out, accent, crop=crop,
-                   max_seconds=15 if preview else cfg.get("max_seconds"), preview=preview)
+                   max_seconds=15 if preview else (cut_at or cfg.get("max_seconds")), preview=preview)
     text = caption.build(info, cfg.get("handle"))
     (out_dir / f"{name}.txt").write_text(text)
     print(f"  ✔ {out}")

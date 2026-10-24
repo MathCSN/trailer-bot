@@ -1,0 +1,12 @@
+# Vérifie la connexion Instagram SANS rien publier (≈ 1 min).
+name: test Instagram
+on: workflow_dispatch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg && pip install requests
+      - run: python instagram.py --test
+        env:
+          INSTAGRAM_TOKEN: ${{ secrets.INSTAGRAM_TOKEN }}

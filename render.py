@@ -345,6 +345,29 @@ def build_layers(info, assets, out_dir, cfg):
 
 # --------------------------------------------------------------------------- vidéo
 
+def branded_end(trailer, window=6.0, step=0.25):
+    """Détecte un carton final de marque (écran uni et coloré, ex. rouge) dans les dernières secondes.
+    Renvoie la durée à garder, ou None si la fin est propre."""
+    dur = probe_duration(trailer)
+    first_bad = None
+    t = max(0.0, dur - window)
+    while t < dur - 0.05:
+        raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-ss", f"{t:.2f}", "-i", str(trailer),
+                              "-frames:v", "1", "-vf", "scale=64:36", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+                             capture_output=True).stdout
+        if len(raw) == 64 * 36 * 3:
+            px = np.frombuffer(raw, np.uint8).reshape(-1, 3).astype(float)
+            mean, spread = px.mean(0), px.std(0).mean()
+            saturation = mean.max() - mean.min()
+            flat_colored = spread < 18 and saturation > 60 and mean.max() > 90
+            if flat_colored and first_bad is None:
+                first_bad = t
+            elif not flat_colored:
+                first_bad = None   # le carton doit aller jusqu'à la fin
+        t += step
+    return first_bad
+
+
 def probe_duration(path):
     out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "json", str(path)],
                          capture_output=True, text=True, check=True).stdout
