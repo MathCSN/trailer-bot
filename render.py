@@ -260,14 +260,18 @@ def build_layers(info, assets, out_dir, cfg):
     if cut is not None and cfg.get("cutout", True):
         ch = 640                                   # hauteur du personnage
         cut = cut.resize((int(cut.width * ch / cut.height), ch), Image.LANCZOS)
-        if cut.width > 560:                        # trop large : on recadre au centre
+        if cut.width > 560:                        # trop large : on recadre au centre, bords adoucis
             x0 = (cut.width - 560) // 2
             cut = cut.crop((x0, 0, x0 + 560, ch))
+            ramp = np.clip(np.arange(560) / 70, 0, 1)
+            ramp = np.minimum(ramp, ramp[::-1])
+            cut.putalpha(Image.fromarray((np.asarray(cut.getchannel("A")) * ramp[None, :]).astype("uint8")))
         overlap = 30                              # pixels du personnage qui débordent sur la vidéo
         cx = W - cut.width + 30
         cy = VID_Y + overlap - ch
         a = cut.getchannel("A")
-        fade = vgrad(cut.width, ch, [(0, 255), ((ch - overlap - 10) / ch, 255), (1, 0)])
+        # fondu progressif sur le bas du personnage : il « sort » du décor sans coupure nette
+        fade = vgrad(cut.width, ch, [(0, 255), ((ch - overlap - 170) / ch, 255), ((ch - overlap) / ch, 90), (1, 0)])
         cut.putalpha(Image.fromarray(np.minimum(np.asarray(a), np.asarray(fade))))
         # liseré lumineux autour du personnage pour l'intégrer à la lumière du décor
         rim = Image.new("RGBA", cut.size, accent + (0,))
