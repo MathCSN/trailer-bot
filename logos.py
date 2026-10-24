@@ -91,11 +91,14 @@ def _whiten(img):
 
 def get(name):
     CACHE.mkdir(parents=True, exist_ok=True)
-    path = CACHE / f"{slug(name)}.png"
+    key = slug(name)
+    path = (CACHE / f"{key}.png").resolve()
+    if not key or path.parent != CACHE.resolve():  # le nom vient d'une page web : jamais hors du dossier
+        return None
     if path.exists():
         return Image.open(path)
     missing = json.loads(MISSING.read_text()) if MISSING.exists() else {}
-    if time.time() - missing.get(slug(name), 0) < 30 * 86400:
+    if time.time() - missing.get(key, 0) < 30 * 86400:
         return None  # déjà cherché récemment sans succès
     url = _logo_url(name)
     logo = None
@@ -107,7 +110,7 @@ def get(name):
             except Exception:
                 logo = None
     if logo is None or logo.width < 20 or logo.height < 10:
-        missing[slug(name)] = time.time()
+        missing[key] = time.time()
         MISSING.write_text(json.dumps(missing, indent=1))
         return None
     logo.save(path)
