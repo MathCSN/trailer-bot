@@ -35,6 +35,72 @@ def anton(size):
     return font("Anton-Regular.ttf", size)
 
 
+def oswald(size, weight=400):
+    return font("Oswald[wght].ttf", size, weight)
+
+
+def credits_block(fg, info, logos, y, accent):
+    """Bloc de crédits façon affiche de cinéma + rangée de logos (production, distribution)."""
+    draw = ImageDraw.Draw(fg)
+    lab, nam = oswald(22, 300), oswald(22, 500)
+    parts = []
+    def add(label, names):
+        names = [n for n in names if n]
+        if names:
+            parts.append((label, "  ".join(n.upper() for n in names)))
+    add("UN FILM DE", info.get("directors", []))
+    add("AVEC", info.get("cast", [])[:5])
+    add("SCÉNARIO", info.get("writers", [])[:2])
+    add("PRODUIT PAR", info.get("producers", [])[:3])
+    add("UNE PRODUCTION", info.get("companies", [])[:3])
+    add("DISTRIBUTION", [info.get("distributor")])
+    # mise en lignes : chaque mot garde sa police (étiquette fine, noms plus marqués)
+    words = []
+    for label, names in parts:
+        words += [(w, lab, (165, 165, 170, 230)) for w in label.split()]
+        words += [(w, nam, (230, 230, 235, 245)) for w in names.split(" ") if w]
+        words.append(("   ", nam, None))
+    max_w, space = 940, draw.textlength(" ", font=nam)
+    lines, cur, cur_w = [], [], 0
+    for w, f, c in words:
+        ww = draw.textlength(w, font=f)
+        if cur and cur_w + space + ww > max_w and c is not None:
+            lines.append((cur, cur_w))
+            cur, cur_w = [], 0
+        if c is None and not cur:
+            continue
+        cur.append((w, f, c, ww))
+        cur_w += ww + (space if len(cur) > 1 else 0)
+    if cur:
+        lines.append((cur, cur_w))
+    for line, lw in lines[:4]:
+        x = (W - lw) / 2
+        for i, (w, f, c, ww) in enumerate(line):
+            if c is not None:
+                draw.text((x, y), w, font=f, fill=c)
+            x += ww + space
+        y += 30
+    # logos
+    if logos:
+        h = 50
+        imgs = [l.resize((max(1, int(l.width * h / l.height)), h), Image.LANCZOS) for l in logos]
+        imgs = [i if i.width <= 230 else i.resize((230, int(i.height * 230 / i.width)), Image.LANCZOS) for i in imgs]
+        gap = 44
+        total = sum(i.width for i in imgs) + gap * (len(imgs) - 1)
+        if total > 960:
+            k = 960 / total
+            imgs = [i.resize((int(i.width * k), int(i.height * k)), Image.LANCZOS) for i in imgs]
+            gap, total = int(gap * k), 960
+        x, y = int((W - total) / 2), y + 16
+        for i in imgs:
+            i = i.copy()
+            i.putalpha(Image.fromarray((np.asarray(i.getchannel("A")) * 0.85).astype("uint8")))
+            fg.alpha_composite(i, (x, y + (h - i.height) // 2))
+            x += i.width + gap
+        y += h
+    return y
+
+
 def mont(size, weight=600):
     return font("Montserrat[wght].ttf", size, weight)
 
@@ -360,6 +426,11 @@ def build_layers(info, assets, out_dir, cfg):
     if cfg.get("handle"):
         draw.text((W // 2, SAFE_BOTTOM + 10), cfg["handle"], font=mont(26, 700),
                   fill=(255, 255, 255, 150), anchor="mm")
+    # bas de l'image : un léger voile sombre pour la lisibilité, puis crédits et logos
+    shade = Image.new("RGBA", (W, H - SAFE_BOTTOM), (0, 0, 0, 0))
+    shade.putalpha(vgrad(W, H - SAFE_BOTTOM, [(0, 0), (0.25, 120), (1, 170)]))
+    fg.alpha_composite(shade, (0, SAFE_BOTTOM))
+    credits_block(fg, info, assets.get("logos") or [], SAFE_BOTTOM + 42, accent)
     fg.save(out_dir / "fg.png")
     return theme_name, accent
 

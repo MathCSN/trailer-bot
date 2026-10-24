@@ -17,6 +17,7 @@ from pathlib import Path
 
 import allocine
 import caption
+import logos
 import render
 import theme
 
@@ -95,7 +96,12 @@ def make(trailer, info, cfg, preview=False):
                                        "-i", str(mp4), *vf, "-frames:v", "1", "-q:v", "2", str(p)], check=True)
             frames.append(str(p))
         cut = render.best_cutout(stills + frames, work)
-    assets = {"poster": str(poster), "stills": stills, "cutout": cut}
+    try:
+        film_logos = logos.for_film(info)
+    except Exception as e:  # les logos sont un bonus : jamais bloquant
+        print("  logos indisponibles :", e)
+        film_logos = []
+    assets = {"poster": str(poster), "stills": stills, "cutout": cut, "logos": film_logos}
     theme_name, accent = render.build_layers(info, assets, work, cfg)
     pdir = work / f"particles_{theme_name}"
     if not (pdir / "0000.png").exists():
