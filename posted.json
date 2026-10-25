@@ -63,5 +63,18 @@
       "media_id": "18171077485465863",
       "username": "onva.voirquoi"
     }
+  },
+  "326160": {
+    "title": "Les Misérables",
+    "cmedia": "20643059",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-25_les-miserables.mp4",
+    "date": "2026-10-25 18:46:44.723890",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18498027769105311",
+      "username": "onva.voirquoi"
+    }
   }
 }
