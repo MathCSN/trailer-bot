@@ -76,5 +76,18 @@
       "media_id": "18498027769105311",
       "username": "onva.voirquoi"
     }
+  },
+  "1000020311": {
+    "title": "Moulin",
+    "cmedia": "20644676",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-25_moulin.mp4",
+    "date": "2026-10-25 23:08:03.908540",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18285968329291062",
+      "username": "onva.voirquoi"
+    }
   }
 }
