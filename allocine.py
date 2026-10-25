@@ -70,16 +70,34 @@ def latest_trailers():
     return out
 
 
+def upcoming_trailers(pages=3):
+    """Bandes-annonces des films à venir (« Prochainement »), classées par date de sortie."""
+    out, seen = [], set()
+    for page in range(1, pages + 1):
+        url = BASE + "/video/bandes-annonces/prochainement/" + (f"?page={page}" if page > 1 else "")
+        try:
+            s = html.unescape(get(url, max_age=900))
+        except requests.HTTPError:
+            break
+        for m in re.finditer(r'href="/video/player_gen_cmedia=(\d+)&cfilm=(\d+)\.html"[^>]*>([^<]*)<', s):
+            cmedia, cfilm, label = m.group(1), m.group(2), m.group(3).strip()
+            if cmedia in seen or not label:
+                continue
+            seen.add(cmedia)
+            out.append({"cmedia": cmedia, "cfilm": cfilm, "label": label})
+    return out
+
+
 def is_trailer(label):
     return "bande-annonce" in label.lower() or "teaser" in label.lower()
 
 
 def version(label):
     l = label.upper()
+    if "VF" in l:          # « VF » et « VF STFR » (passages sous-titrés) sont en français
+        return "VF"
     if "VOST" in l or "STFR" in l:
         return "VOSTFR"
-    if "VF" in l:
-        return "VF"
     if " VO" in l or l.endswith("VO"):
         return "VO"
     return ""

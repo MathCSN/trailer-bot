@@ -382,15 +382,20 @@ def build_layers(info, assets, out_dir, cfg):
     title_box_w = W - 2 * MARGIN
     if cut is not None and cfg.get("cutout", True):
         # le personnage n'est jamais recadré : on le réduit pour qu'il tienne en entier dans 560 x 640
-        k = min(640 / cut.height, 560 / cut.width)
+        # ... et sans jamais dépasser le haut de l'écran (sinon le crâne est coupé net par le bord)
+        overlap = 30
+        room = VID_Y + overlap - 120              # place entre le haut (sous les onglets TikTok) et la vidéo
+        k = min(640 / cut.height, 560 / cut.width, room / cut.height)
         cut = cut.resize((max(1, int(cut.width * k)), max(1, int(cut.height * k))), Image.LANCZOS)
         ch = cut.height
-        overlap = 30                              # pixels du personnage qui débordent sur la vidéo
+        # overlap : pixels du personnage qui débordent sur la vidéo
         cx = W - cut.width - MARGIN // 2           # assez loin du bord pour le zoom de TikTok
         cy = VID_Y + overlap - ch
         a = cut.getchannel("A")
         # fondu progressif sur le bas du personnage : il « sort » du décor sans coupure nette
-        fade = vgrad(cut.width, ch, [(0, 255), ((ch - overlap - 170) / ch, 255), ((ch - overlap) / ch, 90), (1, 0)])
+        f1 = max(0.05, (ch - overlap - 170) / ch)
+        f2 = max(f1 + 0.01, (ch - overlap) / ch)
+        fade = vgrad(cut.width, ch, [(0, 255), (f1, 255), (f2, 90), (1, 0)])
         cut.putalpha(Image.fromarray(np.minimum(np.asarray(a), np.asarray(fade))))
         # liseré lumineux autour du personnage pour l'intégrer à la lumière du décor
         rim = Image.new("RGBA", cut.size, accent + (0,))

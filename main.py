@@ -36,20 +36,30 @@ def slug(s):
 
 
 def candidates(cfg, posted):
-    """Dernières BA AlloCiné, filtrées : films à venir / récents, pas déjà publiés."""
+    """Films qui sortent bientôt (liste « Prochainement » d'AlloCiné), du plus proche au plus lointain.
+
+    Seuls les films pas encore sortis sont pris (max_days_after_release = 0 par défaut) ; si la liste est
+    épuisée, on se rabat sur les dernières bandes-annonces mises en ligne."""
     today = dt.date.today()
-    for t in allocine.latest_trailers():
-        if not allocine.is_trailer(t["label"]) or t["cfilm"] in posted:
-            continue
-        if cfg.get("versions") and allocine.version(t["label"]) not in cfg["versions"]:
-            continue
-        info = allocine.film(t["cfilm"])
-        if not info["release_date"]:
-            continue
-        rel = dt.date.fromisoformat(info["release_date"])
-        if rel < today - dt.timedelta(days=cfg.get("max_days_after_release", 14)):
-            continue  # ressorties / vieux films
-        yield t, info
+    grace = dt.timedelta(days=cfg.get("max_days_after_release", 0))
+    seen = set()
+    for source in (allocine.upcoming_trailers(), allocine.latest_trailers()):
+        found = []
+        for t in source:
+            if t["cfilm"] in posted or t["cfilm"] in seen or not allocine.is_trailer(t["label"]):
+                continue
+            if cfg.get("versions") and allocine.version(t["label"]) not in cfg["versions"]:
+                continue
+            seen.add(t["cfilm"])
+            info = allocine.film(t["cfilm"])
+            if not info["release_date"]:
+                continue
+            rel = dt.date.fromisoformat(info["release_date"])
+            if rel < today - grace:
+                continue  # déjà sorti (ou ressortie d'un vieux film)
+            found.append((rel, t, info))
+        for rel, t, info in sorted(found, key=lambda x: x[0]):
+            yield t, info
 
 
 def make(trailer, info, cfg, preview=False):
