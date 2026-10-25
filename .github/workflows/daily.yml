@@ -1,4 +1,5 @@
-# Toutes les 2 h : publie la bande-annonce d'un film qui sort le mercredi qui vient (TikTok + Instagram).
+# Toutes les 2 h, vérifie s'il faut publier une bande-annonce d'un film du mercredi qui vient :
+# les films sont étalés du jeudi au mardi soir (TikTok + Instagram).
 name: bande-annonce du jour
 on:
   schedule:
@@ -23,7 +24,8 @@ jobs:
       - run: pip install -r requirements.txt
       - uses: actions/cache@v4
         with: { path: ~/.rembg, key: rembg-models }
-      - run: python main.py --latest 1 --publish
+      # lancement à la main (« Run workflow ») = publication immédiate, sans attendre le planning
+      - run: python main.py --latest 1 --publish ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
         env:
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}

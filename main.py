@@ -69,6 +69,29 @@ def candidates(cfg, posted):
             yield t, info
 
 
+def due_now(cfg, posted, remaining, now=None):
+    """Étale les films du mercredi jusqu'au mardi soir : publie seulement si c'est « l'heure ».
+
+    Intervalle visé = temps restant avant mercredi 0h / nombre de films restants, recalculé à chaque
+    lancement (le rythme se corrige tout seul). Pendant une semaine « rush » (rush_until), on publie
+    à chaque créneau."""
+    now = now or dt.datetime.now()
+    today = now.date()
+    target = today + dt.timedelta(days=(cfg["release_day"] - today.weekday()) % 7)
+    if cfg.get("rush_until") and target <= dt.date.fromisoformat(cfg["rush_until"]):
+        return True, "semaine rush : on publie à chaque créneau"
+    deadline = dt.datetime.combine(target, dt.time(0, 0))  # mercredi 0h
+    hours_left = (deadline - now).total_seconds() / 3600
+    if hours_left <= 0 or remaining <= 0:
+        return remaining > 0, "jour de sortie"
+    interval = hours_left / remaining
+    dates = [dt.datetime.fromisoformat(v["date"]) for v in posted.values() if v.get("date")]
+    last = max(dates) if dates else None
+    if last is None or (now - last).total_seconds() / 3600 >= interval - 1:
+        return True, f"{remaining} film(s) restant(s), un toutes les {interval:.1f} h"
+    return False, f"prochain film dans {interval - (now - last).total_seconds() / 3600:.1f} h ({remaining} restant(s))"
+
+
 def make(trailer, info, cfg, preview=False):
     info = {**info, "version": allocine.version(trailer["label"])}
     work = ROOT / "cache" / info["cfilm"]
@@ -144,6 +167,7 @@ def main():
     ap.add_argument("--latest", type=int, default=0, help="nombre de nouvelles BA à traiter")
     ap.add_argument("--preview", action="store_true", help="rendu rapide de 15 s")
     ap.add_argument("--publish", action="store_true", help="publier sur TikTok")
+    ap.add_argument("--force", action="store_true", help="ignorer l'étalement (lancement manuel)")
     a = ap.parse_args()
     if not shutil.which("ffmpeg"):
         sys.exit("ffmpeg est requis")
@@ -157,10 +181,13 @@ def main():
             sys.exit("Aucune bande-annonce trouvée pour ce film")
         jobs.append((t, allocine.film(a.cfilm)))
     elif a.latest:
-        for job in candidates(cfg, posted):
-            jobs.append(job)
-            if len(jobs) >= a.latest:
-                break
+        pending = list(candidates(cfg, posted))
+        if pending and cfg.get("release_day") is not None and not a.force:
+            ok, why = due_now(cfg, posted, len(pending))
+            print("▶ Planning :", why)
+            if not ok:
+                return
+        jobs = pending[:a.latest]
     else:
         ap.print_help()
         return
