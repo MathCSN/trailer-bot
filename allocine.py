@@ -70,11 +70,20 @@ def latest_trailers():
     return out
 
 
+def recent_trailers(pages=2):
+    """Bandes-annonces les plus récemment mises en ligne (toutes dates de sortie confondues)."""
+    return _trailer_list("/video/bandes-annonces/plus-recentes/", pages)
+
+
 def upcoming_trailers(pages=3):
     """Bandes-annonces des films à venir (« Prochainement »), classées par date de sortie."""
+    return _trailer_list("/video/bandes-annonces/prochainement/", pages)
+
+
+def _trailer_list(path, pages):
     out, seen = [], set()
     for page in range(1, pages + 1):
-        url = BASE + "/video/bandes-annonces/prochainement/" + (f"?page={page}" if page > 1 else "")
+        url = BASE + path + (f"?page={page}" if page > 1 else "")
         try:
             s = html.unescape(get(url, max_age=900))
         except requests.HTTPError:

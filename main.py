@@ -23,6 +23,7 @@ import theme
 
 ROOT = Path(__file__).parent
 STATE = ROOT / "posted.json"
+SEEN = ROOT / "seen.json"      # bandes-annonces déjà vues dans « plus récentes » d'AlloCiné
 CONFIG = ROOT / "config.json"
 
 
@@ -72,6 +73,35 @@ def candidates(cfg, posted):
             found.append((rel, t, info))
         for rel, t, info in sorted(found, key=lambda x: x[0]):
             yield t, info
+
+
+def fresh_trailers(cfg, posted, seen):
+    """Nouvelles bandes-annonces (jamais vues) de films à venir, même lointains : à publier en priorité.
+
+    Les bandes-annonces écartées (film déjà sorti, VO sans sous-titres…) sont marquées « vues » pour
+    ne plus être réexaminées ; celles retenues restent « non vues » jusqu'à leur publication."""
+    today = dt.date.today()
+    rank = {v: i for i, v in enumerate(cfg.get("versions") or ["VF", "VOSTFR"])}
+    # film déjà publié ces 30 derniers jours : pas de doublon
+    recent = {k for k, d in posted.items() if dt.datetime.fromisoformat(d["date"]).date() > today - dt.timedelta(days=30)}
+    best = {}
+    for t in allocine.recent_trailers():
+        if t["cmedia"] in seen:
+            continue
+        v = allocine.version(t["label"])
+        if not allocine.is_trailer(t["label"]) or v not in rank or t["cfilm"] in recent:
+            seen.add(t["cmedia"])
+            continue
+        if t["cfilm"] not in best or rank[v] < rank[allocine.version(best[t["cfilm"]]["label"])]:
+            best[t["cfilm"]] = t
+    out = []
+    for t in best.values():
+        info = allocine.film(t["cfilm"])
+        if not info["release_date"] or dt.date.fromisoformat(info["release_date"]) < today:
+            seen.add(t["cmedia"])  # film déjà sorti ou ressortie : pas une nouveauté
+            continue
+        out.append((t, info))
+    return out
 
 
 def due_now(cfg, posted, remaining, now=None):
@@ -179,6 +209,7 @@ def main():
 
     cfg = load(CONFIG, {})
     posted = load(STATE, {})
+    seen = set(load(SEEN, []))
     jobs = []
     if a.cfilm:
         t = allocine.pick_trailer(allocine.film_trailers(a.cfilm))
@@ -186,13 +217,23 @@ def main():
             sys.exit("Aucune bande-annonce trouvée pour ce film")
         jobs.append((t, allocine.film(a.cfilm)))
     elif a.latest:
-        pending = list(candidates(cfg, posted))
-        if pending and cfg.get("release_day") is not None and not a.force:
-            ok, why = due_now(cfg, posted, len(pending))
-            print("▶ Planning :", why)
-            if not ok:
-                return
-        jobs = pending[:a.latest]
+        if SEEN.exists():
+            news = fresh_trailers(cfg, posted, seen)
+        else:  # premier lancement : on mémorise l'existant, seules les futures BA seront des nouveautés
+            seen.update(t["cmedia"] for t in allocine.recent_trailers())
+            news = []
+        SEEN.write_text(json.dumps(sorted(seen)))
+        if news:
+            print(f"▶ Nouveauté : {news[0][1]['title']} (sortie le {news[0][1]['release_date_fr']})")
+            jobs = news[:a.latest]
+        else:
+            pending = list(candidates(cfg, posted))
+            if pending and cfg.get("release_day") is not None and not a.force:
+                ok, why = due_now(cfg, posted, len(pending))
+                print("▶ Planning :", why)
+                if not ok:
+                    return
+            jobs = pending[:a.latest]
     else:
         ap.print_help()
         return
@@ -218,6 +259,8 @@ def main():
                 print("  Instagram :", entry["instagram"])
             posted[info["cfilm"]] = entry
             STATE.write_text(json.dumps(posted, ensure_ascii=False, indent=2))
+            seen.add(t["cmedia"])
+            SEEN.write_text(json.dumps(sorted(seen)))
 
 
 if __name__ == "__main__":

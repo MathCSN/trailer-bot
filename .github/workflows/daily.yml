@@ -45,7 +45,7 @@ jobs:
       - name: mémorise les films déjà publiés
         run: |
           git config user.name "trailer-bot" && git config user.email "bot@users.noreply.github.com"
-          git add posted.json assets/logos
+          git add posted.json seen.json assets/logos
           git diff --cached --quiet && { echo "rien à commiter"; exit 0; }
           git commit -m "publié : $(date +%F)"
           # si le dépôt a changé pendant le lancement, on récupère les nouveautés puis on renvoie (5 essais)
