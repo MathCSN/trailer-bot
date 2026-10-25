@@ -397,10 +397,14 @@ def build_layers(info, assets, out_dir, cfg):
         f2 = max(f1 + 0.01, (ch - overlap) / ch)
         fade = vgrad(cut.width, ch, [(0, 255), (f1, 255), (f2, 90), (1, 0)])
         cut.putalpha(Image.fromarray(np.minimum(np.asarray(a), np.asarray(fade))))
-        # liseré lumineux autour du personnage pour l'intégrer à la lumière du décor
-        rim = Image.new("RGBA", cut.size, accent + (0,))
-        rim.putalpha(cut.getchannel("A").filter(ImageFilter.MaxFilter(7)).filter(ImageFilter.GaussianBlur(6)))
-        fg.alpha_composite(rim, (cx, cy))
+        # liseré lumineux autour du personnage pour l'intégrer à la lumière du décor.
+        # On laisse 24 px de marge autour : sinon la lueur est coupée net au ras des cheveux (trait droit)
+        pad = 24
+        padded = Image.new("RGBA", (cut.width + 2 * pad, cut.height + 2 * pad), (0, 0, 0, 0))
+        padded.paste(cut, (pad, pad))
+        rim = Image.new("RGBA", padded.size, accent + (0,))
+        rim.putalpha(padded.getchannel("A").filter(ImageFilter.MaxFilter(7)).filter(ImageFilter.GaussianBlur(6)))
+        fg.alpha_composite(rim, (cx - pad, cy - pad))
         fg.alpha_composite(cut, (cx, cy))
         title_box_w = cx - 40 + 60   # le titre peut légèrement chevaucher le personnage
 
