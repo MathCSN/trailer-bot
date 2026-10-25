@@ -37,5 +37,18 @@
       "media_id": "18645895015008239",
       "username": "onva.voirquoi"
     }
+  },
+  "318225": {
+    "title": "La Gradiva",
+    "cmedia": "20643928",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-25_la-gradiva.mp4",
+    "date": "2026-10-25 12:17:34.083976",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18377388778246143",
+      "username": "onva.voirquoi"
+    }
   }
 }
