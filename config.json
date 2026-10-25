@@ -1,7 +1,8 @@
 {
   "handle": "@onvavoirquoi",
   "versions": [
-    "VF"
+    "VF",
+    "VOSTFR"
   ],
   "max_days_after_release": 0,
   "cutout": true,

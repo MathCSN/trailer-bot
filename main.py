@@ -48,13 +48,18 @@ def candidates(cfg, posted):
         target = today + dt.timedelta(days=(cfg["release_day"] - today.weekday()) % 7)
     seen = set()
     sources = (allocine.upcoming_trailers(),) if target else (allocine.upcoming_trailers(), allocine.latest_trailers())
+    rank = {v: i for i, v in enumerate(cfg.get("versions") or ["VF", "VOSTFR"])}  # ordre = préférence
     for source in sources:
-        found = []
+        # une seule bande-annonce par film : la meilleure version disponible (VF avant VOSTFR)
+        best = {}
         for t in source:
-            if t["cfilm"] in posted or t["cfilm"] in seen or not allocine.is_trailer(t["label"]):
+            v = allocine.version(t["label"])
+            if t["cfilm"] in posted or t["cfilm"] in seen or not allocine.is_trailer(t["label"]) or v not in rank:
                 continue
-            if cfg.get("versions") and allocine.version(t["label"]) not in cfg["versions"]:
-                continue
+            if t["cfilm"] not in best or rank[v] < rank[allocine.version(best[t["cfilm"]]["label"])]:
+                best[t["cfilm"]] = t
+        found = []
+        for t in best.values():
             seen.add(t["cfilm"])
             info = allocine.film(t["cfilm"])
             if not info["release_date"]:
