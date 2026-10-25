@@ -42,8 +42,13 @@ def candidates(cfg, posted):
     épuisée, on se rabat sur les dernières bandes-annonces mises en ligne."""
     today = dt.date.today()
     grace = dt.timedelta(days=cfg.get("max_days_after_release", 0))
+    # « release_day » : uniquement les films qui sortent ce jour-là de la semaine (en France : le mercredi)
+    target = None
+    if cfg.get("release_day") is not None:
+        target = today + dt.timedelta(days=(cfg["release_day"] - today.weekday()) % 7)
     seen = set()
-    for source in (allocine.upcoming_trailers(), allocine.latest_trailers()):
+    sources = (allocine.upcoming_trailers(),) if target else (allocine.upcoming_trailers(), allocine.latest_trailers())
+    for source in sources:
         found = []
         for t in source:
             if t["cfilm"] in posted or t["cfilm"] in seen or not allocine.is_trailer(t["label"]):
@@ -57,6 +62,8 @@ def candidates(cfg, posted):
             rel = dt.date.fromisoformat(info["release_date"])
             if rel < today - grace:
                 continue  # déjà sorti (ou ressortie d'un vieux film)
+            if target and rel != target:
+                continue  # pas un film du prochain mercredi
             found.append((rel, t, info))
         for rel, t, info in sorted(found, key=lambda x: x[0]):
             yield t, info

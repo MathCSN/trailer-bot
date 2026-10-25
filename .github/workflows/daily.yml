@@ -1,12 +1,16 @@
-# Prépare et publie la dernière bande-annonce (TikTok + Instagram) chaque jour à 18h (heure de Paris).
+# Toutes les 2 h : publie la bande-annonce d'un film qui sort le mercredi qui vient (TikTok + Instagram).
 name: bande-annonce du jour
 on:
   schedule:
-    - cron: "0 16 * * *"     # 16h UTC = 18h Paris (17h en heure d'hiver)
+    # toutes les 2 h de 8h à 22h, heure de Paris en hiver (7h-21h UTC ; en été ce sera 9h-23h)
+    - cron: "0 7-21/2 * * *"
   workflow_dispatch: {}      # bouton "Run workflow" pour lancer à la main
 permissions:
   contents: write
   issues: write
+concurrency:            # jamais deux lancements en même temps (sinon même film en double)
+  group: bande-annonce
+  cancel-in-progress: false
 jobs:
   post:
     runs-on: ubuntu-latest

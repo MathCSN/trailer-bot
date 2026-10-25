@@ -6,5 +6,6 @@
   "max_days_after_release": 0,
   "cutout": true,
   "max_seconds": null,
-  "theme": null
+  "theme": null,
+  "release_day": 2
 }
