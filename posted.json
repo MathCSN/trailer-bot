@@ -50,5 +50,18 @@
       "media_id": "18377388778246143",
       "username": "onva.voirquoi"
     }
+  },
+  "1000026725": {
+    "title": "Une femme aujourd’hui",
+    "cmedia": "20644151",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-25_une-femme-aujourdhui.mp4",
+    "date": "2026-10-25 17:31:55.206878",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18171077485465863",
+      "username": "onva.voirquoi"
+    }
   }
 }
