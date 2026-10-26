@@ -102,5 +102,18 @@
       "media_id": "18169999366413103",
       "username": "onva.voirquoi"
     }
+  },
+  "314882": {
+    "title": "Hope",
+    "cmedia": "20638080",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-26_hope.mp4",
+    "date": "2026-10-26 20:26:13.519613",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18200958604347901",
+      "username": "onva.voirquoi"
+    }
   }
 }
