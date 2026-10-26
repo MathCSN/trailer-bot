@@ -89,5 +89,18 @@
       "media_id": "18285968329291062",
       "username": "onva.voirquoi"
     }
+  },
+  "1000051934": {
+    "title": "Papa où t'es ?",
+    "cmedia": "20643876",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-26_papa-ou-t-es.mp4",
+    "date": "2026-10-26 14:04:04.405988",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18169999366413103",
+      "username": "onva.voirquoi"
+    }
   }
 }
