@@ -128,5 +128,18 @@
       "media_id": "18472824829141964",
       "username": "onva.voirquoi"
     }
+  },
+  "1000036515": {
+    "title": "Quelques mots d'amour",
+    "cmedia": "20643573",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-27_quelques-mots-d-amour.mp4",
+    "date": "2026-10-27 13:07:07.440254",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18117447521091096",
+      "username": "onva.voirquoi"
+    }
   }
 }
