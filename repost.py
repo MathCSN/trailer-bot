@@ -40,7 +40,7 @@ def main(query):
 
     info = allocine.film(cfilm)
     trailer = allocine.pick_trailer(allocine.film_trailers(cfilm))
-    text = caption.build({**info, "version": allocine.version(trailer["label"]) if trailer else ""})
+    text = caption.build({**info, "version": allocine.effective_version(trailer["label"], info) if trailer else ""})
     print(f"▶ {info['title']} → Facebook")
     entry["facebook"] = facebook.post_reel(video, text, cover=cover)
     print("  Facebook :", entry["facebook"])

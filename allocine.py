@@ -97,6 +97,14 @@ def _trailer_list(path, pages):
     return out
 
 
+def effective_version(label, info):
+    """Version de la BA ; un film français dont la BA n'indique aucune version est en VF."""
+    v = version(label)
+    if not v and "fran" in (info.get("nationality") or "").lower():
+        return "VF"
+    return v
+
+
 def is_trailer(label):
     return "bande-annonce" in label.lower() or "teaser" in label.lower()
 
@@ -153,7 +161,9 @@ def film(cfilm):
     if m:
         date_fr = m.group(1) or m.group(2)
     m_dur = re.search(r"\b(\d{1,2}h \d{1,2}min)\b", head)
-    m_par = re.search(r"\| Par \| (.+?) \| (?:Avec|Titre|Séances)", head)
+    m_par = re.search(r"\| Par \| (.+?) \| (?:Avec|Titre|Séances|Presse|Spectateurs)", head)
+    m_nat = re.search(r"Nationalités? \| ([^|]+)", body)
+    m_dist = re.search(r"Distributeur \| ([^|]+)", body)
 
     def names(v):
         v = v if isinstance(v, list) else [v] if v else []
@@ -185,11 +195,14 @@ def film(cfilm):
         "synopsis": html.unescape(ld.get("description") or "").strip(),
         "genres": [ld["genre"]] if isinstance(ld.get("genre"), str) else (ld.get("genre") or []),  # 1 genre = texte
         "directors": names(ld.get("director")) or crew.get("Réalisateur", []),
-        "writers": [w.strip(" |") for w in re.split(r"[,|]", m_par.group(1)) if w.strip(" |")] if m_par else crew.get("Scénariste", []),
+        # scénaristes : la page casting d'abord (fiable) ; sinon la ligne « Par » de l'en-tête, sans les notes
+        "writers": crew.get("Scénariste") or ([w.strip(" |") for w in re.split(r"[,|]", m_par.group(1))
+                                               if w.strip(" |") and not re.search(r"\d", w)] if m_par else []),
+        "nationality": m_nat.group(1).strip() if m_nat else "",
         "cast": cast[:6],
         "producers": crew.get("Producteur", []),
         "companies": crew.get("_production", []),
-        "distributor": (crew.get("_distribution") or [None])[0],
+        "distributor": (crew.get("_distribution") or [m_dist.group(1).strip() if m_dist else None])[0],
         "release_date_fr": date_fr,
         "release_date": _iso_date(date_fr),
         "duration": m_dur.group(1) if m_dur else None,
@@ -208,10 +221,18 @@ def _crew(cfilm):
         return {}
     out = {}
     # motif "Nom | Rôle" dans la section Production / Scénaristes
-    for name, role in re.findall(r"(?<=\| )([^|]{3,60}?) \| (Producteur délégué|Producteur|Scénariste|Réalisateur)(?= \|)", t):
+    headers = {"Scénaristes", "Réalisateurs", "Production", "Producteurs", "Sociétés", "Acteurs et actrices"}
+    # producteurs : « Nom | Producteur »
+    for name, role in re.findall(r"(?<=\| )([^|]{3,60}?) \| (Producteur délégué|Producteur|Réalisateur)(?= \|)", t):
+        if name in headers:
+            continue
         out.setdefault(role, [])
         if name not in out[role]:
             out[role].append(name)
+    # scénaristes : l'ordre est inversé sur la page, « Scénariste | Nom »
+    for name in re.findall(r"(?<=\| )Scénariste \| ([^|]{3,60}?)(?= \|)", t):
+        if name not in headers and name not in out.setdefault("Scénariste", []):
+            out["Scénariste"].append(name)
     soc = t[t.find("Sociétés"):][:1500] if "Sociétés" in t else ""
     for name, role in re.findall(r"(?<=\| )([^|]{2,60}?) \| (Distribution|Production)(?= \|)", soc):
         out.setdefault("_" + role.lower(), []).append(name)

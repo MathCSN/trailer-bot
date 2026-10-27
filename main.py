@@ -52,20 +52,21 @@ def candidates(cfg, posted):
     seen = set()
     sources = (allocine.upcoming_trailers(),) if target else (allocine.upcoming_trailers(), allocine.latest_trailers())
     rank = {v: i for i, v in enumerate(cfg.get("versions") or ["VF", "VOSTFR"])}  # ordre = préférence
+    rank_any = {**rank, "": len(rank)}  # sans mention de version : tranché après lecture de la fiche
     for source in sources:
         # une seule bande-annonce par film : la meilleure version disponible (VF avant VOSTFR)
         best = {}
         for t in source:
             v = allocine.version(t["label"])
-            if t["cfilm"] in posted or t["cfilm"] in seen or not allocine.is_trailer(t["label"]) or v not in rank:
+            if t["cfilm"] in posted or t["cfilm"] in seen or not allocine.is_trailer(t["label"]) or v not in rank_any:
                 continue
-            if t["cfilm"] not in best or rank[v] < rank[allocine.version(best[t["cfilm"]]["label"])]:
+            if t["cfilm"] not in best or rank_any[v] < rank_any[allocine.version(best[t["cfilm"]]["label"])]:
                 best[t["cfilm"]] = t
         found = []
         for t in best.values():
             seen.add(t["cfilm"])
             info = allocine.film(t["cfilm"])
-            if not info["release_date"]:
+            if not info["release_date"] or allocine.effective_version(t["label"], info) not in rank:
                 continue
             rel = dt.date.fromisoformat(info["release_date"])
             if rel < today - grace:
@@ -91,16 +92,18 @@ def fresh_trailers(cfg, posted, seen):
         if t["cmedia"] in seen:
             continue
         v = allocine.version(t["label"])
-        if not allocine.is_trailer(t["label"]) or v not in rank or t["cfilm"] in recent:
+        rank_any = {**rank, "": len(rank)}
+        if not allocine.is_trailer(t["label"]) or v not in rank_any or t["cfilm"] in recent:
             seen.add(t["cmedia"])
             continue
-        if t["cfilm"] not in best or rank[v] < rank[allocine.version(best[t["cfilm"]]["label"])]:
+        if t["cfilm"] not in best or rank_any[v] < rank_any[allocine.version(best[t["cfilm"]]["label"])]:
             best[t["cfilm"]] = t
     out = []
     for t in best.values():
         info = allocine.film(t["cfilm"])
-        if not info["release_date"] or dt.date.fromisoformat(info["release_date"]) < today:
-            seen.add(t["cmedia"])  # film déjà sorti ou ressortie : pas une nouveauté
+        if not info["release_date"] or dt.date.fromisoformat(info["release_date"]) < today \
+                or allocine.effective_version(t["label"], info) not in rank:
+            seen.add(t["cmedia"])  # film déjà sorti, ressortie ou VO non sous-titrée : pas une nouveauté
             continue
         out.append((t, info))
     return out
@@ -130,7 +133,7 @@ def due_now(cfg, posted, remaining, now=None):
 
 
 def make(trailer, info, cfg, preview=False):
-    info = {**info, "version": allocine.version(trailer["label"])}
+    info = {**info, "version": allocine.effective_version(trailer["label"], info)}
     work = ROOT / "cache" / info["cfilm"]
     work.mkdir(parents=True, exist_ok=True)
     print(f"▶ {info['title']} — {trailer['label']}")

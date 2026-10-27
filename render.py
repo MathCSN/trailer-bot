@@ -455,11 +455,16 @@ def build_layers(info, assets, out_dir, cfg):
         y += df.size + 26
     lf, nf = mont(26, 500), mont(29, 700)
     if info.get("directors"):  # réalisateur sur une seule ligne : « De Alexandre Castagnetti »
-        d = ", ".join(info["directors"][:2])
-        while draw.textlength("De " + d, font=nf) > col_w and " " in d:
-            d = d.rsplit(" ", 1)[0]
+        names = list(info["directors"][:2])
+        d = ", ".join(names)
+        dfont = nf
+        while draw.textlength("De " + d, font=dfont) > col_w and len(names) > 1:
+            names.pop()                       # on retire un nom entier, jamais un morceau de nom
+            d = ", ".join(names)
+        while draw.textlength("De " + d, font=dfont) > col_w and dfont.size > 20:
+            dfont = mont(dfont.size - 2, 700)  # un seul nom trop long : on réduit la taille
         draw.text((tx, y), "De", font=lf, fill=(220, 220, 220, 255))
-        draw.text((tx + draw.textlength("De ", font=lf), y - 2), d, font=nf, fill=(255, 255, 255, 255))
+        draw.text((tx + draw.textlength("De ", font=lf), y - 2), d, font=dfont, fill=(255, 255, 255, 255))
         y += 50
     for label, names in (("Avec", info.get("cast", [])[:3]),):
         if not names:
