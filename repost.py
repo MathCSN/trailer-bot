@@ -31,12 +31,18 @@ def main(query):
     # la vidéo a été mise en téléchargement par notify.py dans la release « video-<nom> »
     subprocess.run(["gh", "release", "download", f"video-{stem}", "--pattern", "*.mp4", "--dir", str(tmp)], check=True)
     video = next(tmp.glob("*.mp4"))
+    # vignette : une image du milieu de la bande-annonce (scène du film + habillage)
+    dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                str(video)], capture_output=True, text=True, check=True).stdout)
+    cover = tmp / "cover.jpg"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{dur * 0.4:.1f}", "-i", str(video),
+                    "-frames:v", "1", "-q:v", "2", str(cover)], check=True)
 
     info = allocine.film(cfilm)
     trailer = allocine.pick_trailer(allocine.film_trailers(cfilm))
     text = caption.build({**info, "version": allocine.version(trailer["label"]) if trailer else ""})
     print(f"▶ {info['title']} → Facebook")
-    entry["facebook"] = facebook.post_reel(video, text)
+    entry["facebook"] = facebook.post_reel(video, text, cover=cover)
     print("  Facebook :", entry["facebook"])
     STATE.write_text(json.dumps(posted, ensure_ascii=False, indent=2))
 

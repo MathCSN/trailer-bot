@@ -4,6 +4,8 @@ Secrets : FACEBOOK_PAGE_ID et FACEBOOK_PAGE_TOKEN (token de Page longue durée, 
 workflow « connexion Facebook »). L'app Meta en mode développement suffit pour TA Page.
 """
 import os
+import subprocess
+import tempfile
 import time
 from pathlib import Path
 
@@ -23,10 +25,26 @@ def _check(r, what):
     return r.json()
 
 
+def cover_first(video, cover):
+    """Copie de la vidéo dont la 1re image (0,3 s) est la belle scène : Facebook prend la 1re image en vignette."""
+    out = Path(tempfile.mkdtemp()) / Path(video).name
+    subprocess.run([
+        "ffmpeg", "-y", "-loglevel", "error",
+        "-loop", "1", "-framerate", "30", "-t", "0.3", "-i", str(cover),
+        "-f", "lavfi", "-t", "0.3", "-i", "anullsrc=r=44100:cl=stereo",
+        "-i", str(video),
+        "-filter_complex",
+        "[0:v]scale=1080:1920,setsar=1,format=yuv420p[c];[2:v]setsar=1,format=yuv420p[v];"
+        "[c][1:a][v][2:a]concat=n=2:v=1:a=1[outv][outa]",
+        "-map", "[outv]", "-map", "[outa]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
+        "-c:a", "aac", "-b:a", "192k", "-ar", "44100", "-movflags", "+faststart", str(out)], check=True)
+    return out
+
+
 def post_reel(video_path, caption, cover=None, page_id=None, token=None):
     page_id = page_id or os.environ["FACEBOOK_PAGE_ID"]
     token = token or os.environ["FACEBOOK_PAGE_TOKEN"]
-    video_path = Path(video_path)
+    video_path = Path(cover_first(video_path, cover) if cover else video_path)
 
     # 1. ouverture de l'envoi
     start = _check(requests.post(f"{GRAPH}/{page_id}/video_reels", timeout=30,

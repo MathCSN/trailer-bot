@@ -183,7 +183,7 @@ def film(cfilm):
         "title": ld.get("name") or "",
         "original_title": ld.get("alternateName") or "",
         "synopsis": html.unescape(ld.get("description") or "").strip(),
-        "genres": ld.get("genre") or [],
+        "genres": [ld["genre"]] if isinstance(ld.get("genre"), str) else (ld.get("genre") or []),  # 1 genre = texte
         "directors": names(ld.get("director")) or crew.get("Réalisateur", []),
         "writers": [w.strip(" |") for w in re.split(r"[,|]", m_par.group(1)) if w.strip(" |")] if m_par else crew.get("Scénariste", []),
         "cast": cast[:6],
