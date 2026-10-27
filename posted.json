@@ -141,5 +141,22 @@
       "media_id": "18117447521091096",
       "username": "onva.voirquoi"
     }
+  },
+  "1000033620": {
+    "title": "Irish Travellers",
+    "cmedia": "20642785",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-27_irish-travellers.mp4",
+    "date": "2026-10-27 20:05:05.663302",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18448894351133250",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2486018778572288",
+      "status": "ready"
+    }
   }
 }
