@@ -1,0 +1,48 @@
+# À lancer une fois : transforme un token Facebook temporaire en token de Page permanent
+# et l'enregistre dans les secrets FACEBOOK_PAGE_ID / FACEBOOK_PAGE_TOKEN (nécessite GH_PAT).
+# Pré-requis (secrets) : FB_APP_ID, FB_APP_SECRET, FB_USER_TOKEN (token de l'explorateur Graph API).
+name: connexion Facebook
+on:
+  workflow_dispatch:
+    inputs:
+      page:
+        description: "Nom de ta Page Facebook (laisse vide s'il n'y en a qu'une)"
+        required: false
+jobs:
+  connect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: token de Page permanent
+        env:
+          FB_APP_ID: ${{ secrets.FB_APP_ID }}
+          FB_APP_SECRET: ${{ secrets.FB_APP_SECRET }}
+          FB_USER_TOKEN: ${{ secrets.FB_USER_TOKEN }}
+          PAGE_NAME: ${{ inputs.page }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          python3 - <<'PY'
+          import json, os, subprocess, urllib.parse, urllib.request
+          G = "https://graph.facebook.com/v21.0"
+          def get(url, **params):
+              try:
+                  return json.load(urllib.request.urlopen(url + "?" + urllib.parse.urlencode(params), timeout=30))
+              except urllib.error.HTTPError as e:
+                  return json.load(e)
+          # 1. token utilisateur longue durée (60 jours)
+          ll = get(f"{G}/oauth/access_token", grant_type="fb_exchange_token", client_id=os.environ["FB_APP_ID"],
+                   client_secret=os.environ["FB_APP_SECRET"], fb_exchange_token=os.environ["FB_USER_TOKEN"])
+          if "access_token" not in ll:
+              raise SystemExit(f"Échec (token utilisateur) : {ll.get('error', ll)}")
+          print(f"::add-mask::{ll['access_token']}")
+          # 2. token de la Page (sans date d'expiration quand il vient d'un token longue durée)
+          pages = get(f"{G}/me/accounts", access_token=ll["access_token"], fields="id,name,access_token").get("data", [])
+          if not pages:
+              raise SystemExit("Aucune Page trouvée : vérifie les autorisations pages_show_list et pages_manage_posts")
+          want = (os.environ.get("PAGE_NAME") or "").strip().lower()
+          page = next((p for p in pages if want and want in p["name"].lower()), pages[0])
+          print(f"::add-mask::{page['access_token']}")
+          repo = os.environ["GITHUB_REPOSITORY"]
+          for name, value in (("FACEBOOK_PAGE_ID", page["id"]), ("FACEBOOK_PAGE_TOKEN", page["access_token"])):
+              subprocess.run(["gh", "secret", "set", name, "--body", value, "--repo", repo], check=True)
+          print(f"✅ Page connectée : {page['name']} (pages trouvées : {', '.join(p['name'] for p in pages)})")
+          PY

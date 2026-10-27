@@ -15,6 +15,8 @@ import sys
 import unicodedata
 from pathlib import Path
 
+from PIL import Image
+
 import allocine
 import caption
 import logos
@@ -158,7 +160,7 @@ def make(trailer, info, cfg, preview=False):
                                               capture_output=True, text=True).stdout.strip().split(","))
         render.set_layout(w / h)
 
-    cut = None
+    cut, frames = None, []
     if cfg.get("cutout", True):
         # candidats : photos officielles + images extraites de la bande-annonce
         frames = []
@@ -186,7 +188,13 @@ def make(trailer, info, cfg, preview=False):
     out_dir = ROOT / "output"
     out_dir.mkdir(exist_ok=True)
     name = f"{dt.date.today()}_{slug(info['title'])}"
-    render.still_preview(work, mp4, pdir, out_dir / f"{name}.png", crop=crop)
+    # vignette : une vraie scène du film (et pas la 1re image, souvent un fond uni)
+    dur = render.probe_duration(mp4)
+    timed = [(dur * (0.05 + 0.037 * i), f) for i, f in enumerate(frames)]
+    cover_t = render.best_scene_time(mp4, crop, frames=timed or None, cache_dir=work)
+    render.still_preview(work, mp4, pdir, out_dir / f"{name}.png", crop=crop, at=cover_t)
+    Image.open(out_dir / f"{name}.png").convert("RGB").save(out_dir / f"{name}_cover.jpg", quality=92)
+    info = {**info, "cover": str(out_dir / f"{name}_cover.jpg"), "cover_ms": int(cover_t * 1000)}
     out = out_dir / f"{name}{'_preview' if preview else ''}.mp4"
     render.compose(mp4, work, pdir / "%04d.png", out, accent, crop=crop,
                    max_seconds=15 if preview else (cut_at or cfg.get("max_seconds")), preview=preview)
@@ -246,17 +254,24 @@ def main():
             if os.environ.get("TIKTOK_REFRESH_TOKEN") or os.environ.get("TIKTOK_ACCESS_TOKEN"):
                 import publish
                 try:
-                    entry["tiktok"] = publish.post_video(out, text)
+                    entry["tiktok"] = publish.post_video(out, text, cover_ms=info.get("cover_ms"))
                 except Exception as e:
                     entry["tiktok"] = {"error": str(e)}
                 print("  TikTok :", entry["tiktok"])
             if os.environ.get("INSTAGRAM_TOKEN"):
                 import instagram
                 try:
-                    entry["instagram"] = instagram.post_reel(out, text)
+                    entry["instagram"] = instagram.post_reel(out, text, cover=info.get("cover"))
                 except Exception as e:
                     entry["instagram"] = {"error": str(e)}
                 print("  Instagram :", entry["instagram"])
+            if os.environ.get("FACEBOOK_PAGE_TOKEN"):
+                import facebook
+                try:
+                    entry["facebook"] = facebook.post_reel(out, text, cover=info.get("cover"))
+                except Exception as e:
+                    entry["facebook"] = {"error": str(e)}
+                print("  Facebook :", entry["facebook"])
             posted[info["cfilm"]] = entry
             STATE.write_text(json.dumps(posted, ensure_ascii=False, indent=2))
             seen.add(t["cmedia"])

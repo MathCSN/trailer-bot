@@ -44,7 +44,7 @@ def creator_info(token):
     return r.json()["data"]
 
 
-def post_video(video_path, caption, token=None, privacy=None):
+def post_video(video_path, caption, token=None, privacy=None, cover_ms=None):
     """TIKTOK_MODE=draft (défaut) : la vidéo arrive dans tes brouillons/notifications TikTok,
     tu colles la description et tu publies en public (marche sans l'audit TikTok).
     TIKTOK_MODE=direct : publication 100 % auto (public seulement après l'audit TikTok)."""
@@ -76,7 +76,7 @@ def post_video(video_path, caption, token=None, privacy=None):
             "disable_duet": False,
             "disable_stitch": False,
             "disable_comment": False,
-            "video_cover_timestamp_ms": 3000,
+            "video_cover_timestamp_ms": cover_ms or 3000,  # vignette = une belle scène du film
         },
         "source_info": source,
     }

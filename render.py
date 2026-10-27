@@ -1,5 +1,6 @@
 """Montage 1080x1920 : décor du film en haut/bas, bande-annonce paysage au centre,
 personnage détouré + particules qui passent devant la vidéo."""
+import io
 import json
 import math
 import re
@@ -519,6 +520,49 @@ def branded_end(trailer, window=6.0, step=0.25):
                 first_bad = None   # le carton doit aller jusqu'à la fin
         t += step
     return first_bad
+
+
+def best_scene_time(trailer, crop=None, samples=18, frames=None, cache_dir=None):
+    """Moment de la bande-annonce qui fera une belle vignette : des personnages bien visibles, image
+    lumineuse, nette, colorée, sans sous-titres ni carton (texte, critique presse). Renvoie des secondes.
+
+    `frames` : [(temps, chemin)] déjà extraits ; s'ils ont été détourés (cache_dir), la présence
+    d'un personnage est un gros bonus."""
+    dur = probe_duration(trailer)
+    vf = ("crop=%d:%d:%d:%d," % crop if crop else "") + "scale=192:-2"
+    best_t, best_score = dur * 0.35, -1.0
+    if frames is None:
+        frames = [(dur * (0.12 + 0.6 * i / (samples - 1)), None) for i in range(samples)]
+    for t, path in frames:
+        if path:
+            im = Image.open(path).convert("RGB")
+            im.thumbnail((192, 192))
+        else:
+            raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-ss", f"{t:.2f}", "-i", str(trailer), "-frames:v", "1",
+                                  "-vf", vf, "-f", "image2pipe", "-vcodec", "png", "-"], capture_output=True).stdout
+            if not raw:
+                continue
+            im = Image.open(io.BytesIO(raw)).convert("RGB")
+        g = np.asarray(im.convert("L")).astype(float)
+        rgb = np.asarray(im).astype(float)
+        bright = g.mean()
+        if bright < 35 or g.std() < 25:          # trop sombre ou carton uni
+            continue
+        h = g.shape[0]
+        low = rgb[int(h * 0.72):]
+        white = (low.min(axis=2) > 215)
+        if (np.abs(np.diff(white.astype(int), axis=1)).sum(axis=1) >= 8).sum() >= 3:  # sous-titres incrustés
+            continue
+        sharp = ndimage.laplace(g).var()
+        color = (rgb.max(axis=2) - rgb.min(axis=2)).mean()
+        score = min(sharp, 400) / 400 + color / 80 + (1 - abs(bright - 110) / 110)
+        if path and cache_dir:
+            mask = Path(cache_dir) / f"cutout_human_{Path(path).stem}.png"
+            people = (np.asarray(Image.open(mask).getchannel("A")) > 128).mean() if mask.exists() else 0
+            score += 2.0 if 0.06 <= people <= 0.6 else 0  # une scène avec des personnages, pas un carton
+        if score > best_score:
+            best_t, best_score = t, score
+    return best_t
 
 
 def probe_duration(path):
