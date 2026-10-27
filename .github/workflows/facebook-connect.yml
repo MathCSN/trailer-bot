@@ -6,8 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       page:
-        description: "Nom de ta Page Facebook (laisse vide s'il n'y en a qu'une)"
-        required: false
+        description: "Nom (ou morceau du nom) de la Page Facebook où publier"
+        required: true
+        default: "onvavoirquoi"
 jobs:
   connect:
     runs-on: ubuntu-latest
@@ -38,8 +39,13 @@ jobs:
           pages = get(f"{G}/me/accounts", access_token=ll["access_token"], fields="id,name,access_token").get("data", [])
           if not pages:
               raise SystemExit("Aucune Page trouvée : vérifie les autorisations pages_show_list et pages_manage_posts")
-          want = (os.environ.get("PAGE_NAME") or "").strip().lower()
-          page = next((p for p in pages if want and want in p["name"].lower()), pages[0])
+          norm = lambda x: "".join(c for c in x.lower() if c.isalnum())
+          want = norm(os.environ.get("PAGE_NAME") or "")
+          matches = [p for p in pages if want and want in norm(p["name"])]
+          if len(matches) != 1:  # jamais « la première venue » : on refuse plutôt que publier au mauvais endroit
+              raise SystemExit(f"Page « {os.environ.get('PAGE_NAME')} » introuvable ou ambiguë. Pages accessibles : "
+                               + ", ".join(p["name"] for p in pages))
+          page = matches[0]
           print(f"::add-mask::{page['access_token']}")
           repo = os.environ["GITHUB_REPOSITORY"]
           for name, value in (("FACEBOOK_PAGE_ID", page["id"]), ("FACEBOOK_PAGE_TOKEN", page["access_token"])):
