@@ -202,7 +202,7 @@ def text_glow(canvas, xy, text, fnt, fill, glow_col, glow=14, anchor="la", spaci
 
 def fit_title(text, max_w, max_h, max_lines=3, start=150, min_size=40):
     draw = ImageDraw.Draw(Image.new("L", (1, 1)))
-    text = text.upper()
+    text = re.sub(r" ([:;!?»])", "\u00a0\\1", text.upper())  # jamais de « : » en début de ligne
     for size in range(start, min_size - 1, -4):
         f = anton(size)
         for width in range(8, 60):
