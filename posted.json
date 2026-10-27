@@ -115,5 +115,18 @@
       "media_id": "18200958604347901",
       "username": "onva.voirquoi"
     }
+  },
+  "1000012316": {
+    "title": "Le Mystère Lucy Lost",
+    "cmedia": "20643249",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-27_le-mystere-lucy-lost.mp4",
+    "date": "2026-10-27 00:21:55.809882",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18472824829141964",
+      "username": "onva.voirquoi"
+    }
   }
 }
