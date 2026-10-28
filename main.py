@@ -236,7 +236,7 @@ def main():
         SEEN.write_text(json.dumps(sorted(seen)))
         if news:
             print(f"▶ Nouveauté : {news[0][1]['title']} (sortie le {news[0][1]['release_date_fr']})")
-            jobs = news[:a.latest]
+            jobs = news
         else:
             pending = list(candidates(cfg, posted))
             if pending and cfg.get("release_day") is not None and not a.force:
@@ -244,13 +244,25 @@ def main():
                 print("▶ Planning :", why)
                 if not ok:
                     return
-            jobs = pending[:a.latest]
+            jobs = pending
     else:
         ap.print_help()
         return
 
+    done, failed = 0, []
     for t, info in jobs:
-        out, text, info = make(t, info, cfg, preview=a.preview)
+        if done >= max(a.latest, 1):
+            break
+        try:
+            out, text, info = make(t, info, cfg, preview=a.preview)
+        except Exception as e:  # BA inutilisable (ex. vidéo hébergée seulement sur Dailymotion) : on passe à la suivante
+            print(f"  ⚠ {info['title']} ignoré : {e}")
+            failed.append(info["title"])
+            if a.publish:
+                seen.add(t["cmedia"])
+                SEEN.write_text(json.dumps(sorted(seen)))
+            continue
+        done += 1
         entry = {"title": info["title"], "cmedia": t["cmedia"], "file": str(out), "date": str(dt.datetime.now())}
         if a.publish and not a.preview:
             # chaque réseau est indépendant : une erreur sur l'un ne bloque pas l'autre
@@ -279,6 +291,8 @@ def main():
             STATE.write_text(json.dumps(posted, ensure_ascii=False, indent=2))
             seen.add(t["cmedia"])
             SEEN.write_text(json.dumps(sorted(seen)))
+    if failed and not done:
+        sys.exit("Aucune vidéo fabriquée : " + ", ".join(failed))
 
 
 if __name__ == "__main__":
