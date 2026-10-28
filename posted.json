@@ -158,5 +158,22 @@
       "video_id": "1157809660150817",
       "status": "ready"
     }
+  },
+  "1000028073": {
+    "title": "La Tentazione",
+    "cmedia": "20644866",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-28_la-tentazione.mp4",
+    "date": "2026-10-28 13:55:54.236710",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18059332646589650",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1125046863345940",
+      "status": "ready"
+    }
   }
 }
