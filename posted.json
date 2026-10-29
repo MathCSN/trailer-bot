@@ -192,5 +192,22 @@
       "video_id": "1831084908094875",
       "status": "ready"
     }
+  },
+  "323550": {
+    "title": "L'Affaire Marie-Claire",
+    "cmedia": "20642715",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-29_l-affaire-marie-claire.mp4",
+    "date": "2026-10-29 14:02:44.472713",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18125449291887510",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1653889943113996",
+      "status": "ready"
+    }
   }
 }
