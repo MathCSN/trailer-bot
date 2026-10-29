@@ -9,5 +9,8 @@
   "max_seconds": null,
   "theme": null,
   "release_day": 2,
-  "rush_until": "2026-10-28"
+  "rush_until": "2026-10-28",
+  "min_gap_minutes": 30,
+  "youtube": true,
+  "youtube_max_age_days": 5
 }

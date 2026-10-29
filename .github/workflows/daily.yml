@@ -22,11 +22,14 @@ jobs:
         with: { python-version: "3.12", cache: pip }
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - run: pip install -r requirements.txt
+      - uses: denoland/setup-deno@v2      # yt-dlp en a besoin pour lire YouTube
+        with: { deno-version: v2.x }
       - uses: actions/cache@v4
         with: { path: ~/.rembg, key: rembg-models }
       # lancement à la main (« Run workflow ») = publication immédiate, sans attendre le planning
       - run: python main.py --latest 1 --publish ${{ github.event_name == 'workflow_dispatch' && '--force' || '' }}
         env:
+          YOUTUBE_COOKIES: ${{ secrets.YOUTUBE_COOKIES }}
           TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
           TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
           TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}

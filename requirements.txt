@@ -3,3 +3,4 @@ pillow>=10
 numpy
 scipy
 rembg[cpu]
+yt-dlp[default]

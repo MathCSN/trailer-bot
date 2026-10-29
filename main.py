@@ -3,6 +3,7 @@
   python main.py --cfilm 1000004528            # un film précis (id AlloCiné)
   python main.py --latest 1                    # la dernière BA pas encore publiée
   python main.py --latest 1 --publish          # ... et la publie sur TikTok
+  python main.py --news --publish              # seulement une nouveauté (AlloCiné ou YouTube officiel)
   python main.py --cfilm 1000004528 --preview  # rendu rapide de 15 s pour vérifier le décor
 """
 import argparse
@@ -20,17 +21,12 @@ from PIL import Image
 import allocine
 import caption
 import logos
+import news as newsmod
 import render
 import theme
 
 ROOT = Path(__file__).parent
-STATE = ROOT / "posted.json"
-SEEN = ROOT / "seen.json"      # bandes-annonces déjà vues dans « plus récentes » d'AlloCiné
-CONFIG = ROOT / "config.json"
-
-
-def load(path, default):
-    return json.loads(path.read_text()) if path.exists() else default
+STATE, SEEN, CONFIG, load = newsmod.STATE, newsmod.SEEN, newsmod.CONFIG, newsmod.load
 
 
 def slug(s):
@@ -78,37 +74,6 @@ def candidates(cfg, posted):
             yield t, info
 
 
-def fresh_trailers(cfg, posted, seen):
-    """Nouvelles bandes-annonces (jamais vues) de films à venir, même lointains : à publier en priorité.
-
-    Les bandes-annonces écartées (film déjà sorti, VO sans sous-titres…) sont marquées « vues » pour
-    ne plus être réexaminées ; celles retenues restent « non vues » jusqu'à leur publication."""
-    today = dt.date.today()
-    rank = {v: i for i, v in enumerate(cfg.get("versions") or ["VF", "VOSTFR"])}
-    # film déjà publié ces 30 derniers jours : pas de doublon
-    recent = {k for k, d in posted.items() if dt.datetime.fromisoformat(d["date"]).date() > today - dt.timedelta(days=30)}
-    best = {}
-    for t in allocine.recent_trailers():
-        if t["cmedia"] in seen:
-            continue
-        v = allocine.version(t["label"])
-        rank_any = {**rank, "": len(rank)}
-        if not allocine.is_trailer(t["label"]) or v not in rank_any or t["cfilm"] in recent:
-            seen.add(t["cmedia"])
-            continue
-        if t["cfilm"] not in best or rank_any[v] < rank_any[allocine.version(best[t["cfilm"]]["label"])]:
-            best[t["cfilm"]] = t
-    out = []
-    for t in best.values():
-        info = allocine.film(t["cfilm"])
-        if not info["release_date"] or dt.date.fromisoformat(info["release_date"]) < today \
-                or allocine.effective_version(t["label"], info) not in rank:
-            seen.add(t["cmedia"])  # film déjà sorti, ressortie ou VO non sous-titrée : pas une nouveauté
-            continue
-        out.append((t, info))
-    return out
-
-
 def due_now(cfg, posted, remaining, now=None):
     """Étale les films du mercredi jusqu'au mardi soir : publie seulement si c'est « l'heure ».
 
@@ -138,7 +103,11 @@ def make(trailer, info, cfg, preview=False):
     work.mkdir(parents=True, exist_ok=True)
     print(f"▶ {info['title']} — {trailer['label']}")
 
-    mp4 = allocine.download(allocine.trailer_mp4(trailer["cmedia"], trailer["cfilm"]), work / f"trailer_{trailer['cmedia']}.mp4")
+    if trailer.get("youtube"):  # nouveauté repérée sur une chaîne YouTube officielle
+        import youtube
+        mp4 = youtube.download(trailer["youtube"], work / f"trailer_yt_{trailer['youtube']}.mp4")
+    else:
+        mp4 = allocine.download(allocine.trailer_mp4(trailer["cmedia"], trailer["cfilm"]), work / f"trailer_{trailer['cmedia']}.mp4")
     poster = allocine.download(info["poster"], work / "poster.jpg") if info.get("poster") else None
     stills = [str(allocine.download(u, work / f"still{i}.jpg")) for i, u in enumerate(info["stills"][:10])]
     if not poster:  # pas d'affiche : on prend une image de la BA
@@ -214,6 +183,7 @@ def main():
     ap.add_argument("--preview", action="store_true", help="rendu rapide de 15 s")
     ap.add_argument("--publish", action="store_true", help="publier sur TikTok")
     ap.add_argument("--force", action="store_true", help="ignorer l'étalement (lancement manuel)")
+    ap.add_argument("--news", action="store_true", help="seulement les nouveautés (veille toutes les 15 min)")
     a = ap.parse_args()
     if not shutil.which("ffmpeg"):
         sys.exit("ffmpeg est requis")
@@ -227,16 +197,22 @@ def main():
         if not t:
             sys.exit("Aucune bande-annonce trouvée pour ce film")
         jobs.append((t, allocine.film(a.cfilm)))
-    elif a.latest:
+    elif a.latest or a.news:
         if SEEN.exists():
-            news = fresh_trailers(cfg, posted, seen)
+            news = newsmod.fresh_trailers(cfg, posted, seen)
         else:  # premier lancement : on mémorise l'existant, seules les futures BA seront des nouveautés
             seen.update(t["cmedia"] for t in allocine.recent_trailers())
             news = []
         SEEN.write_text(json.dumps(sorted(seen)))
+        if news and newsmod.too_soon(cfg, posted) and not a.force:
+            print("▶ Nouveauté en attente : publication précédente trop récente")
+            return
         if news:
             print(f"▶ Nouveauté : {news[0][1]['title']} (sortie le {news[0][1]['release_date_fr']})")
             jobs = news
+        elif a.news:
+            print("Rien de nouveau.")
+            return
         else:
             pending = list(candidates(cfg, posted))
             if pending and cfg.get("release_day") is not None and not a.force:
