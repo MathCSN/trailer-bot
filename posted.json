@@ -209,5 +209,22 @@
       "video_id": "1653889943113996",
       "status": "ready"
     }
+  },
+  "1000031925": {
+    "title": "Un bon patron",
+    "cmedia": "20645224",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-30_un-bon-patron.mp4",
+    "date": "2026-10-30 00:46:33.315977",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17945638155088348",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1995205994505405",
+      "status": "ready"
+    }
   }
 }
