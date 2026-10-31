@@ -260,5 +260,22 @@
       "video_id": "28788212467539305",
       "status": "ready"
     }
+  },
+  "1000014492": {
+    "title": "Godzilla Minus Zero",
+    "cmedia": "20643494",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-10-31_godzilla-minus-zero.mp4",
+    "date": "2026-10-31 13:27:53.556626",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18122241013744362",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1103299742316275",
+      "status": "ready"
+    }
   }
 }
