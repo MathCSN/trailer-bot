@@ -311,5 +311,22 @@
       "video_id": "1138079118694202",
       "status": "ready"
     }
+  },
+  "1000040300": {
+    "title": "Carlo Acutis, un saint pour notre temps",
+    "cmedia": "20644855",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-01_carlo-acutis-un-saint-pour-notre-temps.mp4",
+    "date": "2026-11-01 19:28:33.823814",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18028525769873282",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "4191603477804147",
+      "status": "ready"
+    }
   }
 }
