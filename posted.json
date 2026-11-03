@@ -345,5 +345,22 @@
       "video_id": "1887011646051019",
       "status": "ready"
     }
+  },
+  "1000051742": {
+    "title": "Louve, une vie dans les Alpes",
+    "cmedia": "20644477",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-02_louve-une-vie-dans-les-alpes.mp4",
+    "date": "2026-11-02 23:57:01.842844",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18099584693410506",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1806274303646508",
+      "status": "ready"
+    }
   }
 }
