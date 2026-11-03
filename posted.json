@@ -379,5 +379,22 @@
       "video_id": "3239290889589059",
       "status": "ready"
     }
+  },
+  "1000046573": {
+    "title": "Nos âmes libres",
+    "cmedia": "20644472",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-03_nos-ames-libres.mp4",
+    "date": "2026-11-03 20:54:21.463397",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18136384249671074",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1060502380420207",
+      "status": "ready"
+    }
   }
 }
