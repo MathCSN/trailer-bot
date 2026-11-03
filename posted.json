@@ -362,5 +362,22 @@
       "video_id": "1806274303646508",
       "status": "ready"
     }
+  },
+  "1000027255": {
+    "title": "Kwibuka, se souvenir",
+    "cmedia": "20644025",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-03_kwibuka-se-souvenir.mp4",
+    "date": "2026-11-03 14:57:54.924007",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17978137901934352",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "3239290889589059",
+      "status": "ready"
+    }
   }
 }
