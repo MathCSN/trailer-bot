@@ -413,5 +413,21 @@
       "video_id": "1408397511278328",
       "status": "ready"
     }
+  },
+  "1000049344": {
+    "title": "30 ans après... Mémoire d'une féria",
+    "cmedia": "20645598",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-04_30-ans-apres-memoire-d-une-feria.mp4",
+    "date": "2026-11-04 10:48:54.156515",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "error": "Command '['gh', 'release', 'create', 'media-1793789336', '/home/runner/work/trailer-bot/trailer-bot/output/2026-11-04_30-ans-apres-memoire-d-une-feria.mp4#2026-11-04_30-ans-apres-memoire-d-une-feria.mp4', '/home/runner/work/trailer-bot/trailer-bot/output/2026-11-04_30-ans-apres-memoire-d-une-feria_cover.jpg#2026-11-04_30-ans-apres-memoire-d-une-feria_cover.jpg', '--repo', 'MathCSN/trailer-bot', '--prerelease', '--title', 'fichier temporaire Instagram', '--notes', 'Supprimé automatiquement après publication.']' returned non-zero exit status 1."
+    },
+    "facebook": {
+      "video_id": "1938560717226265",
+      "status": "ready"
+    }
   }
 }
