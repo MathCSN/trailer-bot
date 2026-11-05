@@ -446,5 +446,22 @@
       "video_id": "1104463819030868",
       "status": "ready"
     }
+  },
+  "1000034007": {
+    "title": "Scrooge",
+    "cmedia": "20644849",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-05_scrooge.mp4",
+    "date": "2026-11-05 15:17:45.805410",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18218927992355697",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2114966365798307",
+      "status": "ready"
+    }
   }
 }
