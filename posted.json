@@ -531,5 +531,22 @@
       "video_id": "2165284970753347",
       "status": "ready"
     }
+  },
+  "310503": {
+    "title": "L'Âge d'Or",
+    "cmedia": "20645215",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-08_l-age-d-or.mp4",
+    "date": "2026-11-08 14:11:31.540785",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18120627337974560",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2028675031085440",
+      "status": "ready"
+    }
   }
 }
