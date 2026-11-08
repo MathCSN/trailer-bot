@@ -548,5 +548,22 @@
       "video_id": "2028675031085440",
       "status": "ready"
     }
+  },
+  "1000041856": {
+    "title": "George Michael: The Faith Tour",
+    "cmedia": "20643089",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-08_george-michael-the-faith-tour.mp4",
+    "date": "2026-11-08 19:28:34.053685",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18139646308633514",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2951703001851645",
+      "status": "ready"
+    }
   }
 }
