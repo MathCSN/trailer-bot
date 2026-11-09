@@ -565,5 +565,22 @@
       "video_id": "2951703001851645",
       "status": "ready"
     }
+  },
+  "1000020289": {
+    "title": "Comment braquer une banque",
+    "cmedia": "20640983",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-09_comment-braquer-une-banque.mp4",
+    "date": "2026-11-09 00:41:43.627707",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18121281509103772",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1688047666360968",
+      "status": "ready"
+    }
   }
 }
