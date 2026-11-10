@@ -599,5 +599,22 @@
       "video_id": "29462410493362829",
       "status": "ready"
     }
+  },
+  "328439": {
+    "title": "The Good Boy",
+    "cmedia": "20642645",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-10_the-good-boy.mp4",
+    "date": "2026-11-10 02:05:43.428323",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18149984644577553",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "999301789231487",
+      "status": "ready"
+    }
   }
 }
