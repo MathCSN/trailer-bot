@@ -633,5 +633,22 @@
       "video_id": "2060207214684955",
       "status": "ready"
     }
+  },
+  "1000020962": {
+    "title": "À jamais les premières",
+    "cmedia": "20640527",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-10_a-jamais-les-premieres.mp4",
+    "date": "2026-11-10 22:16:19.934608",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17923156035455593",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1686265916430305",
+      "status": "ready"
+    }
   }
 }
