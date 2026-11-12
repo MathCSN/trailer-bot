@@ -667,5 +667,22 @@
       "video_id": "1567858448717849",
       "status": "ready"
     }
+  },
+  "1000054131": {
+    "title": "Faire Santé Commune",
+    "cmedia": "20645751",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-12_faire-sante-commune.mp4",
+    "date": "2026-11-12 02:55:59.302564",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18067898474790172",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2521817251660797",
+      "status": "ready"
+    }
   }
 }
