@@ -684,5 +684,22 @@
       "video_id": "2521817251660797",
       "status": "ready"
     }
+  },
+  "1000004528": {
+    "title": "Hunger Games : Lever de soleil sur la moisson",
+    "cmedia": "20636584",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-12_hunger-games-lever-de-soleil-sur-la-moisson.mp4",
+    "date": "2026-11-12 15:54:16.313385",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18233300959334659",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2342127976622337",
+      "status": "ready"
+    }
   }
 }
