@@ -718,5 +718,22 @@
       "video_id": "2413900982479713",
       "status": "ready"
     }
+  },
+  "1000022995": {
+    "title": "Jupiter",
+    "cmedia": "20643133",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-13_jupiter.mp4",
+    "date": "2026-11-13 15:15:39.747776",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18156893638532583",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1130184536269621",
+      "status": "ready"
+    }
   }
 }
