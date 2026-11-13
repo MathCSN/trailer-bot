@@ -735,5 +735,22 @@
       "video_id": "1130184536269621",
       "status": "ready"
     }
+  },
+  "1000018671": {
+    "title": "Malika",
+    "cmedia": "20645943",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-13_malika.mp4",
+    "date": "2026-11-13 22:30:54.076896",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18134037793793725",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "3720161898150349",
+      "status": "ready"
+    }
   }
 }
