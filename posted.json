@@ -786,5 +786,22 @@
       "video_id": "1889853918855009",
       "status": "ready"
     }
+  },
+  "1000010370": {
+    "title": "Fais-moi un signe",
+    "cmedia": "20644800",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-15_fais-moi-un-signe.mp4",
+    "date": "2026-11-15 14:37:16.175475",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18135110473685982",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1119739990762109",
+      "status": "ready"
+    }
   }
 }
