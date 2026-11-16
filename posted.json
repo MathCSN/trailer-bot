@@ -820,5 +820,22 @@
       "video_id": "1156743137187372",
       "status": "ready"
     }
+  },
+  "1000046705": {
+    "title": "À la poursuite de l’Affreunard",
+    "cmedia": "20645972",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-16_a-la-poursuite-de-laffreunard.mp4",
+    "date": "2026-11-16 00:53:45.832579",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17979798147155396",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1802050701012268",
+      "status": "ready"
+    }
   }
 }
