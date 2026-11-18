@@ -905,5 +905,22 @@
       "video_id": "1705487154508745",
       "status": "ready"
     }
+  },
+  "1000022255": {
+    "title": "Arsa",
+    "cmedia": "20646582",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-18_arsa.mp4",
+    "date": "2026-11-18 02:20:08.655657",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18129108631867508",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1083849781362609",
+      "status": "ready"
+    }
   }
 }
