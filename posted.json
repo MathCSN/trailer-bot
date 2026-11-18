@@ -922,5 +922,22 @@
       "video_id": "1083849781362609",
       "status": "ready"
     }
+  },
+  "1000040428": {
+    "title": "Meeting The Buddha",
+    "cmedia": "20646285",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-18_meeting-the-buddha.mp4",
+    "date": "2026-11-18 16:21:43.251438",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18115219043058385",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1654243919515782",
+      "status": "ready"
+    }
   }
 }
