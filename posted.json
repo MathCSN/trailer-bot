@@ -956,5 +956,22 @@
       "video_id": "984450267618795",
       "status": "ready"
     }
+  },
+  "312529": {
+    "title": "Billie, à la croisée des mondes",
+    "cmedia": "20645344",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-19_billie-a-la-croisee-des-mondes.mp4",
+    "date": "2026-11-19 16:26:16.399824",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17926536546446089",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1886081519055953",
+      "status": "ready"
+    }
   }
 }
