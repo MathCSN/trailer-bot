@@ -990,5 +990,22 @@
       "video_id": "4766510117006014",
       "status": "ready"
     }
+  },
+  "1000028064": {
+    "title": "Forty Love",
+    "cmedia": "20645529",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-20_forty-love.mp4",
+    "date": "2026-11-20 16:03:15.970818",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17896771500615119",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1179149151133709",
+      "status": "ready"
+    }
   }
 }
