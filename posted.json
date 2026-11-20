@@ -973,5 +973,22 @@
       "video_id": "1886081519055953",
       "status": "ready"
     }
+  },
+  "1000048062": {
+    "title": "O.M Operation Mole",
+    "cmedia": "20647008",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-20_o-m-operation-mole.mp4",
+    "date": "2026-11-20 00:48:24.602387",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17919078357493367",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "4766510117006014",
+      "status": "ready"
+    }
   }
 }
