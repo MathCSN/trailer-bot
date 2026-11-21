@@ -1024,5 +1024,22 @@
       "video_id": "1859955474996499",
       "status": "ready"
     }
+  },
+  "1000027620": {
+    "title": "Un bon petit soldat",
+    "cmedia": "20643365",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-21_un-bon-petit-soldat.mp4",
+    "date": "2026-11-21 22:08:04.368987",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17979397416157901",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2207156873536490",
+      "status": "ready"
+    }
   }
 }
