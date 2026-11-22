@@ -1058,5 +1058,22 @@
       "video_id": "1788297455763637",
       "status": "ready"
     }
+  },
+  "1000004190": {
+    "title": "Demain je tombe amoureux",
+    "cmedia": "20645833",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-22_demain-je-tombe-amoureux.mp4",
+    "date": "2026-11-22 22:24:11.003456",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18138818803638843",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1444249861201402",
+      "status": "ready"
+    }
   }
 }
