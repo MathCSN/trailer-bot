@@ -1041,5 +1041,22 @@
       "video_id": "2207156873536490",
       "status": "ready"
     }
+  },
+  "1000014559": {
+    "title": "Paper Tiger",
+    "cmedia": "20646332",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-22_paper-tiger.mp4",
+    "date": "2026-11-22 15:10:30.015231",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17982161738918137",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1788297455763637",
+      "status": "ready"
+    }
   }
 }
