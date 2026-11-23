@@ -1075,5 +1075,22 @@
       "video_id": "1444249861201402",
       "status": "ready"
     }
+  },
+  "1000041096": {
+    "title": "Le Noël d'Ernest et Célestine",
+    "cmedia": "20641879",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-23_le-noel-d-ernest-et-celestine.mp4",
+    "date": "2026-11-23 19:03:35.645529",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18122273930471242",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1196371330013052",
+      "status": "ready"
+    }
   }
 }
