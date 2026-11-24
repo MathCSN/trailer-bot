@@ -1109,5 +1109,22 @@
       "video_id": "30363627093222825",
       "status": "ready"
     }
+  },
+  "1000052290": {
+    "title": "Gruffalo, de père en fils",
+    "cmedia": "20644082",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-24_gruffalo-de-pere-en-fils.mp4",
+    "date": "2026-11-24 18:44:08.123800",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18474017254143276",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1014970798317101",
+      "status": "ready"
+    }
   }
 }
