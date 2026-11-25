@@ -1160,5 +1160,22 @@
       "video_id": "4254389228031883",
       "status": "ready"
     }
+  },
+  "1000012306": {
+    "title": "La libertad doble",
+    "cmedia": "20646050",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-25_la-libertad-doble.mp4",
+    "date": "2026-11-25 19:41:41.895834",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "18031373498699242",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "4714207382195495",
+      "status": "ready"
+    }
   }
 }
