@@ -1177,5 +1177,22 @@
       "video_id": "4714207382195495",
       "status": "ready"
     }
+  },
+  "313265": {
+    "title": "Astérix - Le Royaume de Nubie",
+    "cmedia": "20639418",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-26_asterix-le-royaume-de-nubie.mp4",
+    "date": "2026-11-26 17:39:51.267847",
+    "tiktok": {
+      "error": "TikTok refuse de renouveler la clé (Refresh token is invalid or expired.) : refaire la connexion via https://mathcsn.github.io/trailer-bot/connect.html puis le workflow « connexion TikTok »"
+    },
+    "instagram": {
+      "media_id": "17958493179335807",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "1451202793287777",
+      "status": "ready"
+    }
   }
 }
