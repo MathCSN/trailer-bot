@@ -1,8 +1,8 @@
-"""Bot TikTok de bandes-annonces.
+"""Bot de bandes-annonces (Instagram + Facebook automatiques, TikTok à la main).
 
   python main.py --cfilm 1000004528            # un film précis (id AlloCiné)
   python main.py --latest 1                    # la dernière BA pas encore publiée
-  python main.py --latest 1 --publish          # ... et la publie sur TikTok
+  python main.py --latest 1 --publish          # ... et la publie sur Instagram et Facebook
   python main.py --news --publish              # seulement une nouveauté (AlloCiné ou YouTube officiel)
   python main.py --cfilm 1000004528 --preview  # rendu rapide de 15 s pour vérifier le décor
 """
@@ -181,7 +181,7 @@ def main():
     ap.add_argument("--cfilm", help="id AlloCiné du film (fichefilm_gen_cfilm=XXXX)")
     ap.add_argument("--latest", type=int, default=0, help="nombre de nouvelles BA à traiter")
     ap.add_argument("--preview", action="store_true", help="rendu rapide de 15 s")
-    ap.add_argument("--publish", action="store_true", help="publier sur TikTok")
+    ap.add_argument("--publish", action="store_true", help="publier sur Instagram et Facebook")
     ap.add_argument("--force", action="store_true", help="ignorer l'étalement (lancement manuel)")
     ap.add_argument("--news", action="store_true", help="seulement les nouveautés (veille toutes les 15 min)")
     a = ap.parse_args()
@@ -242,13 +242,7 @@ def main():
         entry = {"title": info["title"], "cmedia": t["cmedia"], "file": str(out), "date": str(dt.datetime.now())}
         if a.publish and not a.preview:
             # chaque réseau est indépendant : une erreur sur l'un ne bloque pas l'autre
-            if os.environ.get("TIKTOK_REFRESH_TOKEN") or os.environ.get("TIKTOK_ACCESS_TOKEN"):
-                import publish
-                try:
-                    entry["tiktok"] = publish.post_video(out, text, cover_ms=info.get("cover_ms"))
-                except Exception as e:
-                    entry["tiktok"] = {"error": str(e)}
-                print("  TikTok :", entry["tiktok"])
+            # TikTok : publication à la main (TikTok refuse les apps à usage personnel), via la notification
             if os.environ.get("INSTAGRAM_TOKEN"):
                 import instagram
                 try:

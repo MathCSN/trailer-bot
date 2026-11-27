@@ -32,7 +32,7 @@ def announce(video):
     body = (f"@{OWNER} nouvelle bande-annonce prête à publier sur TikTok 👇\n\n"
             f"📥 **Télécharger la vidéo :** {url}\n\n"
             f"**Description à copier :**\n```\n{caption.strip()}\n```\n\n"
-            "Une fois publiée sur TikTok, ferme ce ticket ✅")
+            "Déjà publiée automatiquement sur Instagram et Facebook. Une fois publiée sur TikTok, ferme ce ticket ✅")
     with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as fh:
         fh.write(body)
     print(gh("issue", "create", "--title", f"🎬 {title}", "--body-file", fh.name).strip())
