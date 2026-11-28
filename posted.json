@@ -1228,5 +1228,19 @@
       "video_id": "3271194286406966",
       "status": "ready"
     }
+  },
+  "1000038378": {
+    "title": "",
+    "cmedia": "20646280",
+    "file": "/home/runner/work/trailer-bot/trailer-bot/output/2026-11-28_.mp4",
+    "date": "2026-11-28 01:53:31.050963",
+    "instagram": {
+      "media_id": "18655241242004153",
+      "username": "onva.voirquoi"
+    },
+    "facebook": {
+      "video_id": "2322420215219322",
+      "status": "ready"
+    }
   }
 }
